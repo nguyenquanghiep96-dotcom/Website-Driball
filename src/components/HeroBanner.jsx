@@ -13,7 +13,7 @@ export default function HeroBanner() {
 
         {/* Product image — positioned center-right */}
         <img
-          src="/images/hero/stars-series.png"
+          src="/images/hero/hero.png"
           alt="Stars Series - Bộ sưu tập mới"
           className="hero__image"
         />
