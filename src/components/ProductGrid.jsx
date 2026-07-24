@@ -21,6 +21,7 @@ export default function ProductGrid() {
 
   return (
     <section className="product-grid section" id="products">
+      {/* Header + tabs stay inside container */}
       <div className="container">
         <ScrollReveal>
           <div className="product-grid__header">
@@ -53,15 +54,16 @@ export default function ProductGrid() {
             ))}
           </div>
         </ScrollReveal>
-
-        <ScrollReveal delay={2}>
-          <div className="product-grid__scroll" ref={scrollRef}>
-            {filtered.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </ScrollReveal>
       </div>
+
+      {/* Scroll container breaks out to full viewport width */}
+      <ScrollReveal delay={2}>
+        <div className="product-grid__scroll" ref={scrollRef}>
+          {filtered.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </ScrollReveal>
     </section>
   );
 }

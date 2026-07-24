@@ -1,4 +1,8 @@
 /* ── Product Grid Section ── */
+.product-grid {
+  overflow: visible;
+}
+
 .product-grid__header {
   display: flex;
   justify-content: space-between;
@@ -78,7 +82,7 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* ── Horizontal scroll container ── */
+/* ── Horizontal scroll — full-width breakout (Apple style) ── */
 .product-grid__scroll {
   display: flex;
   gap: 20px;
@@ -86,7 +90,20 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   padding-bottom: 8px;
+
+  /*
+   * Left padding = align with .container content edge
+   * On wide screens: (viewport - max-width) / 2 + content-padding
+   * On narrow screens: just content-padding
+   */
+  padding-left: max(
+    var(--content-padding),
+    calc((100vw - var(--max-width)) / 2 + var(--content-padding))
+  );
+  /* Right: small padding so last card peeks nicely */
+  padding-right: 40px;
 }
 
 .product-grid__scroll::-webkit-scrollbar {
@@ -97,6 +114,7 @@
   min-width: 280px;
   max-width: 380px;
   flex: 0 0 calc(25% - 15px);
+  scroll-snap-align: start;
 }
 
 /* ── Responsive ── */
