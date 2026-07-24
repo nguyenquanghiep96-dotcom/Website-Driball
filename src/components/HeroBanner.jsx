@@ -5,15 +5,16 @@ export default function HeroBanner() {
   return (
     <section className="hero">
       <div className="hero__card">
-        {/* Background watermark text */}
+        {/* Background watermark text — two lines */}
         <div className="hero__bg-text" aria-hidden="true">
-          STRIPE SERIES
+          <span className="hero__bg-text-line">STARS</span>
+          <span className="hero__bg-text-line">SERIES</span>
         </div>
 
-        {/* Product image */}
+        {/* Product image — positioned center-right */}
         <img
-          src="/images/products/product.png"
-          alt="Stripe Series - Bộ sưu tập mới"
+          src="/images/hero/stars-series.png"
+          alt="Stars Series - Bộ sưu tập mới"
           className="hero__image"
         />
 
@@ -21,8 +22,9 @@ export default function HeroBanner() {
         <div className="hero__overlay">
           <h1 className="hero__tag">#NEW ARRIVALS</h1>
           <p className="hero__description">
-            Những chiếc áo với thiết kế và gam màu mang tính biểu tượng,
-            cảm hứng từ bóng đá Anh cuối thập niên 90.
+            Những chiếc áo với thiết kế và gam màu mang
+            tính biểu tượng, cảm hứng từ bóng đá Anh
+            cuối thập niên 90.
           </p>
           <Link to="/product/stripe-series-blue" className="btn btn-primary hero__cta">
             ĐẶT ĐỘI
