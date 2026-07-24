@@ -1,0 +1,229 @@
+/* ── Bento Grid Section ── */
+.bento__heading {
+  margin-bottom: var(--space-xl);
+}
+
+.bento__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  min-height: 700px;
+}
+
+/* ── Cells ── */
+.bento__cell {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+/* Cell 1: Tall lifestyle — spans 2 rows, col 1 */
+.bento__cell--tall {
+  grid-row: 1 / 3;
+  grid-column: 1;
+}
+
+/* Cell 2: Wide blue — row 1, spans col 2-3 */
+.bento__cell--wide {
+  grid-row: 1;
+  grid-column: 2 / 4;
+}
+
+/* ── Image cells ── */
+.bento__cell--image {
+  position: relative;
+}
+
+.bento__cell-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.bento__cell--image:hover .bento__cell-img {
+  transform: scale(1.05);
+}
+
+.bento__cell-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  z-index: 2;
+}
+
+.bento__cell-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(20px, 2.5vw, 28px);
+  color: var(--color-white);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.bento__cell-subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+/* ── Blue cells ── */
+.bento__cell--blue {
+  background: var(--color-blue-alt);
+  display: flex;
+  align-items: flex-end;
+  padding: 30px;
+}
+
+.bento__cell--blue-alt {
+  background: var(--color-blue);
+}
+
+.bento__blue-content {
+  width: 100%;
+}
+
+.bento__blue-tag {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.bento__blue-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(20px, 2.5vw, 32px);
+  color: var(--color-white);
+  line-height: 1.2;
+}
+
+/* ── Plus button ── */
+.bento__plus {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+}
+
+.bento__plus:hover {
+  background: var(--color-dark);
+  transform: scale(1.1);
+}
+
+.bento__plus:active {
+  transform: scale(0.95);
+}
+
+/* ── Modal ── */
+.bento__modal {
+  overflow: hidden;
+  position: relative;
+}
+
+.bento__modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.bento__modal-close:hover {
+  background: var(--color-white);
+  transform: scale(1.1);
+}
+
+.bento__modal-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
+.bento__modal-body {
+  padding: 30px;
+}
+
+.bento__modal-title {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-dark);
+  margin-bottom: 12px;
+}
+
+.bento__modal-text {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .bento__grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    min-height: auto;
+  }
+
+  .bento__cell--tall {
+    grid-row: auto;
+    grid-column: auto;
+    min-height: 400px;
+  }
+
+  .bento__cell--wide {
+    grid-row: auto;
+    grid-column: auto;
+    min-height: 200px;
+  }
+
+  .bento__cell--image:not(.bento__cell--tall) {
+    min-height: 300px;
+  }
+
+  .bento__cell--blue:not(.bento__cell--wide) {
+    min-height: 180px;
+  }
+
+  .bento__plus {
+    width: 50px;
+    height: 50px;
+  }
+}

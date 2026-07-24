@@ -1,0 +1,106 @@
+/* ── Brand Marquee Section ── */
+.marquee-section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(80px, 15vw, 200px) 0;
+}
+
+/* ── Floating product image ── */
+.marquee-section__product {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.marquee-section__product-img {
+  height: clamp(300px, 50vw, 700px);
+  width: auto;
+  filter: drop-shadow(0 30px 80px rgba(0, 0, 0, 0.2));
+  animation: marquee-float 6s ease-in-out infinite;
+}
+
+@keyframes marquee-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* ── Rotating badge ── */
+.marquee-section__badge {
+  position: absolute;
+  bottom: clamp(20px, 5vw, 60px);
+  right: clamp(20px, 5vw, 80px);
+  z-index: 3;
+}
+
+.marquee-section__badge-img {
+  width: clamp(80px, 12vw, 160px);
+  height: auto;
+  animation: marquee-rotate 20s linear infinite;
+}
+
+@keyframes marquee-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Marquee text ── */
+.marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee__track {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee-scroll 20s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee__text {
+  font-family: var(--font-display);
+  font-size: clamp(120px, 30vw, 500px);
+  color: var(--color-dark);
+  line-height: 1;
+  text-transform: uppercase;
+  padding-right: clamp(40px, 5vw, 80px);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation-play-state: paused;
+  }
+
+  .marquee-section__product-img {
+    animation: none;
+  }
+
+  .marquee-section__badge-img {
+    animation: none;
+  }
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+  .marquee-section__product-img {
+    height: clamp(200px, 45vw, 400px);
+  }
+}

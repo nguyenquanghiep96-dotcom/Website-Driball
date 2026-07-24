@@ -1,0 +1,9 @@
+/* ── Home Page ── */
+.home-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.home-page main {
+  padding-bottom: var(--space-section);
+}
