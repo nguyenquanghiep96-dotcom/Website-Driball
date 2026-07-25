@@ -1,18 +1,44 @@
 import { Link } from 'react-router-dom';
 import './HeroBanner.css';
 
-export default function HeroBanner() {
+/**
+ * Hero Banner with 2 display modes:
+ *   mode="image"   → Full cover image (default, current HERO1.jpg)
+ *   mode="product"  → Transparent product image + large typo text (Apple iPad Air style)
+ *
+ * Switch by changing the mode prop from HomePage.
+ */
+export default function HeroBanner({ mode = 'image' }) {
+  const isProduct = mode === 'product';
+
   return (
     <section className="hero">
-      <div className="hero__card">
-        {/* Full-bleed hero image */}
-        <img
-          src="/images/hero/HERO1.jpg"
-          alt="Driball - Bộ sưu tập mới"
-          className="hero__image"
-        />
+      <div className={`hero__card ${isProduct ? 'hero__card--product' : 'hero__card--image'}`}>
+        {/* Mode: Full cover image */}
+        {!isProduct && (
+          <img
+            src="/images/hero/HERO1.jpg"
+            alt="Driball - Bộ sưu tập mới"
+            className="hero__cover"
+          />
+        )}
 
-        {/* Bottom-left overlay content */}
+        {/* Mode: Product with typo */}
+        {isProduct && (
+          <>
+            <div className="hero__typo" aria-hidden="true">
+              <span className="hero__typo-line">STARS</span>
+              <span className="hero__typo-line">SERIES</span>
+            </div>
+            <img
+              src="/images/hero/hero.png"
+              alt="Stars Series"
+              className="hero__product-img"
+            />
+          </>
+        )}
+
+        {/* Overlay content — always bottom-left */}
         <div className="hero__overlay">
           <h1 className="hero__tag">#NEW ARRIVALS</h1>
           <p className="hero__description">
@@ -21,7 +47,7 @@ export default function HeroBanner() {
             cuối thập niên 90.
           </p>
           <Link to="/product/stripe-series-blue" className="btn btn-primary hero__cta">
-            ĐẶT ĐỘI
+            BÁO GIÁ ĐẶT ĐỘI
           </Link>
         </div>
       </div>

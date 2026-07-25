@@ -44,7 +44,7 @@ export default function Navbar() {
           rel="noopener noreferrer"
           className="btn btn-primary navbar__cta"
         >
-          ĐẶT ĐỘI
+          BÁO GIÁ ĐẶT ĐỘI
         </a>
 
         {/* Mobile hamburger */}
@@ -73,7 +73,7 @@ export default function Navbar() {
               className="btn btn-primary navbar__drawer-cta"
               onClick={() => setMenuOpen(false)}
             >
-              ĐẶT ĐỘI NGAY
+              BÁO GIÁ ĐẶT ĐỘI
             </a>
           </li>
         </ul>

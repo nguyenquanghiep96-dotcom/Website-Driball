@@ -148,8 +148,9 @@
 }
 
 @media (max-width: 480px) {
+  /* 1 card fully visible + 1/3 of next card peeking */
   .product-grid__scroll .product-card {
-    flex: 0 0 calc((100vw - 2 * var(--content-padding) - 1 * 16px) / 2.2);
-    min-width: 160px;
+    flex: 0 0 calc(100vw - 2 * var(--content-padding) - 16px - ((100vw - 2 * var(--content-padding)) / 3));
+    min-width: 0;
   }
 }

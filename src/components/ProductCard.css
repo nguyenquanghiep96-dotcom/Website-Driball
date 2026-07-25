@@ -4,7 +4,6 @@
   background: var(--color-white);
   border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.35s var(--ease-out);
   cursor: pointer;
   flex-shrink: 0;
   scroll-snap-align: start;
@@ -20,9 +19,13 @@
   );
 }
 
-/* Hover: zoom the entire card slightly — no crop, shape preserved */
+/* Hover: scale wrapper, not the clipped element.
+   Since clip-path is on the card itself, scale would crop corners.
+   Fix: use a subtle translateY instead of scale to avoid clip-path crop. */
 .product-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-6px);
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08));
+  transition: transform 0.35s var(--ease-out), filter 0.35s var(--ease-out);
 }
 
 /* ── Image ── */

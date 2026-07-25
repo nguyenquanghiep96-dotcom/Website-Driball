@@ -171,6 +171,10 @@
     display: flex;
   }
 
+  .navbar__logo-img {
+    height: 18px;
+  }
+
   .navbar__drawer {
     display: block;
     position: fixed;
@@ -188,5 +192,31 @@
 
   .navbar__drawer--open {
     transform: translateY(0);
+  }
+
+  .navbar__drawer-cta {
+    font-size: 16px !important;
+    padding: 14px 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar__logo-img {
+    height: 16px;
+  }
+
+  .navbar__hamburger {
+    width: 24px;
+    height: 24px;
+  }
+
+  .navbar__drawer-links li a {
+    font-size: 22px;
+    padding: 16px 0;
+  }
+
+  .navbar__drawer-cta {
+    font-size: 14px !important;
+    padding: 12px 20px !important;
   }
 }
