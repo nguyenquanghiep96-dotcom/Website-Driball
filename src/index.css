@@ -197,12 +197,35 @@ ul, ol {
               filter var(--duration-fast) var(--ease-out);
 }
 
+/* Border layer — slightly larger than ::before, creates border by size difference */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  clip-path: polygon(
+    0.75rem 0,
+    100% 0,
+    100% calc(100% - 0.75rem),
+    calc(100% - 0.75rem) 100%,
+    0 100%,
+    0 0.75rem
+  );
+  z-index: -2;
+  background: transparent;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
 .btn-primary {
   color: var(--color-white);
 }
 
 .btn-primary::before {
   background-color: var(--color-blue);
+}
+
+/* Border = ::after with lighter color, 2px bigger than ::before */
+.btn-primary::after {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-primary:hover {
@@ -228,6 +251,10 @@ ul, ol {
   clip-path: none;
 }
 
+.btn-outline::after {
+  display: none;
+}
+
 .btn-outline:hover {
   color: var(--color-white);
 }
@@ -244,7 +271,8 @@ ul, ol {
   overflow: visible;
 }
 
-.btn-ghost::before {
+.btn-ghost::before,
+.btn-ghost::after {
   display: none;
 }
 
