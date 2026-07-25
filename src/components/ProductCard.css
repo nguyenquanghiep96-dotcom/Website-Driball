@@ -10,6 +10,14 @@
   scroll-snap-align: start;
   text-decoration: none;
   color: inherit;
+  clip-path: polygon(
+    1.5rem 0,
+    100% 0,
+    100% calc(100% - 1.5rem),
+    calc(100% - 1.5rem) 100%,
+    0 100%,
+    0 1.5rem
+  );
 }
 
 /* Hover: zoom the entire card slightly — no crop, shape preserved */
@@ -22,7 +30,7 @@
   width: 100%;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: #f8f8f8;
+  background: var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;

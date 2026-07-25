@@ -29,14 +29,10 @@ export default function ProductGrid() {
             <h2 className="heading-xl">NHỮNG MẪU ĐẶT ĐỘI</h2>
             <div className="product-grid__nav-arrows">
               <button className="product-grid__arrow" onClick={() => scroll('prev')} aria-label="Previous">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M12 5L7 10L12 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <img src="/icons/Frame 21.svg" alt="" width="24" height="24" />
               </button>
               <button className="product-grid__arrow" onClick={() => scroll('next')} aria-label="Next">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M8 5L13 10L8 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <img src="/icons/Frame 21-1.svg" alt="" width="24" height="24" />
               </button>
             </div>
           </div>
