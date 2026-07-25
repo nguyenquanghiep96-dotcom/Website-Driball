@@ -3,6 +3,11 @@
   overflow: visible;
 }
 
+/* Allow scroll to overflow the container on the right */
+.product-grid > .container {
+  overflow: visible;
+}
+
 .product-grid__header {
   display: flex;
   justify-content: space-between;
@@ -82,28 +87,24 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* ── Horizontal scroll — full-width breakout (Apple style) ── */
+/* ── Horizontal scroll ──
+ * Initial state: first card aligns with container left edge.
+ * When scrolled: cards overflow past container right boundary.
+ * This mimics Apple's per-pixel scroll gallery behavior.
+ */
 .product-grid__scroll {
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   padding-bottom: 8px;
 
-  /*
-   * Left padding = align with .container content edge
-   * On wide screens: (viewport - max-width) / 2 + content-padding
-   * On narrow screens: just content-padding
-   */
-  padding-left: max(
-    var(--content-padding),
-    calc((100vw - var(--max-width)) / 2 + var(--content-padding))
-  );
-  /* Right: small padding so last card peeks nicely */
-  padding-right: 40px;
+  /* Extend the scroll area past the container on the right */
+  margin-right: calc(-1 * var(--content-padding));
+  padding-right: var(--content-padding);
 }
 
 .product-grid__scroll::-webkit-scrollbar {

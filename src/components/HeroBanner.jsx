@@ -5,16 +5,10 @@ export default function HeroBanner() {
   return (
     <section className="hero">
       <div className="hero__card">
-        {/* Background watermark text — two lines */}
-        <div className="hero__bg-text" aria-hidden="true">
-          <span className="hero__bg-text-line">STARS</span>
-          <span className="hero__bg-text-line">SERIES</span>
-        </div>
-
-        {/* Product image — positioned center-right */}
+        {/* Full-bleed hero image */}
         <img
-          src="/images/hero/hero.png"
-          alt="Stars Series - Bộ sưu tập mới"
+          src="/images/hero/HERO1.jpg"
+          alt="Driball - Bộ sưu tập mới"
           className="hero__image"
         />
 

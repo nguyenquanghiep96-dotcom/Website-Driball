@@ -12,7 +12,9 @@ export default function ProductGrid() {
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.offsetWidth * 0.7;
+    // Scroll by one card width + gap
+    const card = scrollRef.current.querySelector('.product-card');
+    const scrollAmount = card ? card.offsetWidth + 20 : scrollRef.current.offsetWidth * 0.3;
     scrollRef.current.scrollBy({
       left: direction === 'next' ? scrollAmount : -scrollAmount,
       behavior: 'smooth',
@@ -21,7 +23,6 @@ export default function ProductGrid() {
 
   return (
     <section className="product-grid section" id="products">
-      {/* Header + tabs stay inside container */}
       <div className="container">
         <ScrollReveal>
           <div className="product-grid__header">
@@ -54,16 +55,16 @@ export default function ProductGrid() {
             ))}
           </div>
         </ScrollReveal>
-      </div>
 
-      {/* Scroll container breaks out to full viewport width */}
-      <ScrollReveal delay={2}>
-        <div className="product-grid__scroll" ref={scrollRef}>
-          {filtered.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </ScrollReveal>
+        {/* Scroll starts inside container, overflows right on scroll */}
+        <ScrollReveal delay={2}>
+          <div className="product-grid__scroll" ref={scrollRef}>
+            {filtered.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </ScrollReveal>
+      </div>
     </section>
   );
 }
