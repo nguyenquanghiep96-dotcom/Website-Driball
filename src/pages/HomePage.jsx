@@ -14,7 +14,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <ScrollReveal>
-          <HeroBanner />
+          <HeroBanner mode="product" />
         </ScrollReveal>
 
         <ProductGrid />
