@@ -1,48 +1,32 @@
-/* ── Product Grid Section ── */
+/* ═══════════════════════════════════════════════
+   Product Grid — Apple "Highlights" Horizontal Storytelling
+   Vertical scroll → horizontal translateX via position: sticky
+   ═══════════════════════════════════════════════ */
+
+/* Outer section: tall to provide vertical scroll runway */
 .product-grid {
-  overflow: visible;
+  position: relative;
+  /* height is set dynamically by JS */
 }
 
-/* Allow scroll to overflow the container on the right */
-.product-grid > .container {
-  overflow: visible;
-}
-
-.product-grid__header {
+/* Sticky viewport: pinned at top during scroll */
+.product-grid__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--space-lg);
-  gap: 20px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: var(--space-3xl);
 }
 
-/* ── Navigation arrows ── */
-.product-grid__nav-arrows {
-  display: flex;
-  gap: 8px;
+/* ── Header (inside container) ── */
+.product-grid__header-container {
   flex-shrink: 0;
 }
 
-.product-grid__arrow {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
-}
-
-.product-grid__arrow:hover {
-  background: #e0e0e0;
-}
-
-.product-grid__arrow:active {
-  transform: scale(0.95);
+.product-grid__header {
+  margin-bottom: var(--space-lg);
 }
 
 /* ── Category tabs ── */
@@ -84,65 +68,82 @@
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* ── Horizontal scroll ──
- * Initial state: first card aligns with container left edge.
- * When scrolled: cards overflow past container right boundary.
- * This mimics Apple's per-pixel scroll gallery behavior.
- */
-.product-grid__scroll {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  padding-bottom: 8px;
+/* ── Viewport — takes remaining height ── */
+.product-grid__viewport {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
 
-  /* Extend the scroll area past the container on the right */
-  margin-right: calc(-1 * var(--content-padding));
+/* ── Horizontal track — moved via translate3d ── */
+.product-grid__track {
+  display: flex;
+  align-items: stretch;
+  gap: 50px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  will-change: transform;
+  /* Left padding matches container's content edge */
+  padding-left: max(
+    var(--content-padding),
+    calc((100vw - var(--max-width)) / 2 + var(--content-padding))
+  );
   padding-right: var(--content-padding);
 }
 
-.product-grid__scroll::-webkit-scrollbar {
-  display: none;
+/* ── Card wrapper ── */
+.product-grid__card {
+  flex-shrink: 0;
+  width: min(75vw, 900px);
+  display: flex;
+  align-items: stretch;
 }
 
-.product-grid__scroll .product-card {
-  min-width: 280px;
-  max-width: 380px;
-  flex: 0 0 calc(25% - 15px);
-  scroll-snap-align: start;
+.product-grid__card .product-card {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  flex: none;
 }
 
 /* ── Responsive ── */
 @media (max-width: 1200px) {
-  .product-grid__scroll .product-card {
-    min-width: 260px;
-    flex: 0 0 calc(33.33% - 14px);
+  .product-grid__card {
+    width: min(78vw, 700px);
+  }
+
+  .product-grid__track {
+    gap: 40px;
   }
 }
 
 @media (max-width: 768px) {
-  .product-grid__scroll .product-card {
-    min-width: 240px;
-    flex: 0 0 calc(50% - 10px);
+  .product-grid__sticky {
+    padding-top: var(--space-xl);
+  }
+
+  .product-grid__card {
+    width: 80vw;
+  }
+
+  .product-grid__track {
+    gap: 30px;
   }
 
   .product-grid__tab {
     font-size: 14px;
     padding: 12px 18px;
   }
-
-  .product-grid__arrow {
-    width: 40px;
-    height: 40px;
-  }
 }
 
 @media (max-width: 480px) {
-  .product-grid__scroll .product-card {
-    min-width: 200px;
-    flex: 0 0 calc(65% - 10px);
+  .product-grid__card {
+    width: 85vw;
+  }
+
+  .product-grid__track {
+    gap: 20px;
   }
 }
