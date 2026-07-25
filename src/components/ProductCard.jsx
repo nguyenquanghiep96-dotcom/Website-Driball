@@ -3,9 +3,15 @@ import { formatPrice } from '../data/products';
 import './ProductCard.css';
 
 export default function ProductCard({ product }) {
+  const isInStock = product.availability === 'in-stock';
+
   return (
     <Link to={`/product/${product.slug}`} className="product-card">
       <div className="product-card__image-wrapper">
+        {/* Availability label */}
+        <span className={`product-card__badge ${isInStock ? 'product-card__badge--stock' : 'product-card__badge--preorder'}`}>
+          {isInStock ? 'Có sẵn' : 'Pre-Order'}
+        </span>
         <img
           src={product.heroImage}
           alt={product.name}

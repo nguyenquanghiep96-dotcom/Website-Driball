@@ -3,6 +3,8 @@
 
 export const ZALO_LINK = 'https://zalo.me/0000000000'; // Placeholder — cập nhật Zalo ID sau
 
+export const DELIVERY_TIME = '14 ngày kể từ ngày cọc tiền';
+
 export const PRICE_TIERS = [
   { minQty: 1, label: '1–9 bộ', discount: 0 },
   { minQty: 10, label: '10–19 bộ', discount: 10000 },
@@ -11,15 +13,12 @@ export const PRICE_TIERS = [
 ];
 
 export const PRINT_OPTIONS = [
-  { id: 'basic', name: 'Gói in cơ bản', description: 'In số, tên, logo trước sau', price: 30000 },
-  { id: 'back-number', name: 'In số lưng lớn', description: 'Số lưng size lớn nổi bật', price: 10000 },
-  { id: 'name-print', name: 'In tên cầu thủ', description: 'Tên cầu thủ phía trên số lưng', price: 15000 },
+  { id: 'basic', name: 'In ấn cơ bản', description: 'In số, tên, logo đội', price: 35000 },
+  { id: 'premium', name: 'In ấn nâng cao', description: 'In số, tên, logo + hoạ tiết tuỳ chỉnh', price: 45000 },
 ];
 
 export const UPGRADE_OPTIONS = [
-  { id: '3d-logo', name: 'Logo 3D', description: 'Logo thêu 3D cao cấp, nổi bật trên áo', price: 15000 },
-  { id: 'premium-fabric', name: 'Nâng cấp vải Premium', description: 'Vải thun lạnh cao cấp, thoáng mát hơn', price: 25000 },
-  { id: 'custom-collar', name: 'Tuỳ chỉnh cổ áo', description: 'Thay đổi kiểu cổ áo theo yêu cầu', price: 20000 },
+  { id: 'dtf-logo', name: 'Nâng cấp Logo DTF cao cấp', description: 'Logo in DTF sắc nét, bền màu, không bong tróc', price: 15000, unit: '/logo' },
 ];
 
 export const CATEGORIES = [
@@ -29,13 +28,22 @@ export const CATEGORIES = [
   { id: 'dri-elite', label: 'DRI-ELITE' },
 ];
 
-export const products = [
+export const SIZE_CHART = [
+  { size: 'S', chest: '88-92', length: '68', shoulder: '42' },
+  { size: 'M', chest: '92-96', length: '70', shoulder: '44' },
+  { size: 'L', chest: '96-100', length: '72', shoulder: '46' },
+  { size: 'XL', chest: '100-104', length: '74', shoulder: '48' },
+  { size: '2XL', chest: '104-108', length: '76', shoulder: '50' },
+];
 
+export const products = [
   {
     id: 'stripe-series-blue',
     slug: 'stripe-series-blue',
     name: 'STRIPE SERIES',
+    tagline: 'Tinh thần sọc dọc. Đẳng cấp sân cỏ.',
     category: 'new',
+    availability: 'in-stock', // "Có sẵn"
     price: 320000,
     bulkPrice: 310000,
     bulkMinQty: 10,
@@ -43,6 +51,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-blue.png',
     modelImage: '/images/products/stripe-blue.png',
+    frontImage: '/images/products/stripe-blue.png',
+    backImage: '/images/products/stripe-blue.png',
     colors: [
       { name: 'Xanh/Đen', hex: '#1a3a8a', image: '/images/products/stripe-blue.png' },
     ],
@@ -53,7 +63,9 @@ export const products = [
     id: 'stripe-series-red',
     slug: 'stripe-series-red',
     name: 'STRIPE SERIES',
+    tagline: 'Tinh thần sọc dọc. Đẳng cấp sân cỏ.',
     category: 'new',
+    availability: 'pre-order',
     price: 320000,
     bulkPrice: 310000,
     bulkMinQty: 10,
@@ -61,6 +73,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-red.png',
     modelImage: '/images/products/stripe-red.png',
+    frontImage: '/images/products/stripe-red.png',
+    backImage: '/images/products/stripe-red.png',
     colors: [
       { name: 'Đỏ/Đen', hex: '#cc0000', image: '/images/products/stripe-red.png' },
     ],
@@ -71,7 +85,9 @@ export const products = [
     id: 'stripe-series-bw',
     slug: 'stripe-series-bw',
     name: 'STRIPE SERIES',
+    tagline: 'Tinh thần sọc dọc. Đẳng cấp sân cỏ.',
     category: 'new',
+    availability: 'pre-order',
     price: 320000,
     bulkPrice: 310000,
     bulkMinQty: 10,
@@ -79,6 +95,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-bw.png',
     modelImage: '/images/products/stripe-bw.png',
+    frontImage: '/images/products/stripe-bw.png',
+    backImage: '/images/products/stripe-bw.png',
     colors: [
       { name: 'Trắng/Đen', hex: '#333333', image: '/images/products/stripe-bw.png' },
     ],
@@ -89,7 +107,9 @@ export const products = [
     id: 'stripe-retro-blue',
     slug: 'stripe-retro-blue',
     name: 'RETRO SERIES',
+    tagline: 'Hoài niệm cổ điển. Phong cách vượt thời gian.',
     category: 'new',
+    availability: 'pre-order',
     price: 330000,
     bulkPrice: 320000,
     bulkMinQty: 10,
@@ -97,6 +117,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-blue.png',
     modelImage: '/images/products/stripe-blue.png',
+    frontImage: '/images/products/stripe-blue.png',
+    backImage: '/images/products/stripe-blue.png',
     colors: [
       { name: 'Xanh/Đen', hex: '#1a3a8a', image: '/images/products/stripe-blue.png' },
     ],
@@ -107,7 +129,9 @@ export const products = [
     id: 'stripe-retro-red',
     slug: 'stripe-retro-red',
     name: 'RETRO SERIES',
+    tagline: 'Hoài niệm cổ điển. Phong cách vượt thời gian.',
     category: 'new',
+    availability: 'pre-order',
     price: 330000,
     bulkPrice: 320000,
     bulkMinQty: 10,
@@ -115,6 +139,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-red.png',
     modelImage: '/images/products/stripe-red.png',
+    frontImage: '/images/products/stripe-red.png',
+    backImage: '/images/products/stripe-red.png',
     colors: [
       { name: 'Đỏ/Đen', hex: '#cc0000', image: '/images/products/stripe-red.png' },
     ],
@@ -125,7 +151,9 @@ export const products = [
     id: 'stripe-retro-bw',
     slug: 'stripe-retro-bw',
     name: 'RETRO SERIES',
+    tagline: 'Hoài niệm cổ điển. Phong cách vượt thời gian.',
     category: 'new',
+    availability: 'pre-order',
     price: 330000,
     bulkPrice: 320000,
     bulkMinQty: 10,
@@ -133,6 +161,8 @@ export const products = [
     material: 'Vải thun lạnh Polyester cao cấp, thoáng mát, co giãn 4 chiều.',
     heroImage: '/images/products/stripe-bw.png',
     modelImage: '/images/products/stripe-bw.png',
+    frontImage: '/images/products/stripe-bw.png',
+    backImage: '/images/products/stripe-bw.png',
     colors: [
       { name: 'Trắng/Đen', hex: '#333333', image: '/images/products/stripe-bw.png' },
     ],
@@ -163,7 +193,7 @@ export function getUnitPrice(basePrice, quantity) {
 
 export function buildZaloMessage({ product, color, quantity, unitPrice, totalPrice, printOptions, upgradeOptions }) {
   const lines = [
-    '📋 *BÁO GIÁ DRIBALL*',
+    '📋 *TÍNH GIÁ ĐẶT ĐỘI - DRIBALL*',
     `──────────────`,
     `Mẫu: ${product.name}`,
     color ? `Màu: ${color}` : '',
@@ -184,6 +214,7 @@ export function buildZaloMessage({ product, color, quantity, unitPrice, totalPri
   lines.push(`──────────────`);
   lines.push(`Đơn giá: ${formatPrice(unitPrice)}/bộ`);
   lines.push(`💰 Tổng: ${formatPrice(totalPrice)}`);
+  lines.push(`Thời gian giao: 14 ngày kể từ ngày cọc tiền`);
 
   return lines.filter(Boolean).join('\n');
 }

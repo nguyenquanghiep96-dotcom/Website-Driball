@@ -5,8 +5,12 @@ import Footer from '../components/Footer';
 import { ScrollReveal } from '../hooks/useScrollReveal';
 import {
   products,
+  partners,
   formatPrice,
   PRINT_OPTIONS,
+  UPGRADE_OPTIONS,
+  SIZE_CHART,
+  DELIVERY_TIME,
   ZALO_LINK,
 } from '../data/products';
 import './ProductPage.css';
@@ -15,9 +19,7 @@ export default function ProductPage() {
   const { slug } = useParams();
   const product = products.find((p) => p.slug === slug);
   const [selectedColor, setSelectedColor] = useState(0);
-  const [imageTransition, setImageTransition] = useState(false);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
@@ -26,22 +28,15 @@ export default function ProductPage() {
     return (
       <>
         <Navbar />
-        <main className="product-page">
+        <main className="pdp">
           <div className="container">
-            <div className="product-not-found">
-              <div className="product-not-found__icon">🔍</div>
-              <h1 className="product-not-found__title">
-                Không tìm thấy sản phẩm
-              </h1>
-              <p className="product-not-found__text">
+            <div className="pdp-not-found">
+              <div className="pdp-not-found__icon">🔍</div>
+              <h1 className="pdp-not-found__title">Không tìm thấy sản phẩm</h1>
+              <p className="pdp-not-found__text">
                 Sản phẩm bạn tìm kiếm không tồn tại hoặc đã bị xoá.
               </p>
-              <Link to="/" className="product-not-found__link">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Quay lại trang chủ
-              </Link>
+              <Link to="/" className="btn btn-primary">Quay lại trang chủ</Link>
             </div>
           </div>
         </main>
@@ -51,248 +46,261 @@ export default function ProductPage() {
   }
 
   const currentColor = product.colors[selectedColor];
-  const currentImage = currentColor?.image || product.heroImage;
-
-  const handleColorChange = (index) => {
-    if (index === selectedColor) return;
-    setImageTransition(true);
-    setTimeout(() => {
-      setSelectedColor(index);
-      setImageTransition(false);
-    }, 200);
-  };
-
-  const isLightColor = (hex) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return (r * 299 + g * 587 + b * 114) / 1000 > 200;
-  };
+  const isInStock = product.availability === 'in-stock';
 
   return (
     <>
       <Navbar />
-      <main className="product-page">
-        <div className="container">
-          {/* Back Button */}
-          <ScrollReveal>
-            <Link to="/" className="product-back">
-              <span className="product-back__arrow">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              Quay lại
-            </Link>
-          </ScrollReveal>
+      <main className="pdp">
 
-          {/* Hero: Image + Info */}
-          <div className="product-hero">
-            {/* Gallery */}
-            <ScrollReveal className="product-gallery">
-              <div className="product-gallery__main">
-                <img
-                  src={currentImage}
-                  alt={`${product.name} — ${currentColor?.name || ''}`}
-                  className={imageTransition ? 'image-entering' : ''}
-                />
-              </div>
-
-              {product.images.length > 1 && (
-                <div className="product-gallery__thumbs">
-                  {product.images.map((img, i) => (
-                    <button
-                      key={i}
-                      className={`product-gallery__thumb ${
-                        currentImage === img ? 'active' : ''
-                      }`}
-                      onClick={() => {
-                        // Find the color that matches this image
-                        const colorIndex = product.colors.findIndex(
-                          (c) => c.image === img
-                        );
-                        if (colorIndex !== -1) {
-                          handleColorChange(colorIndex);
-                        }
-                      }}
-                      aria-label={`Xem ảnh ${i + 1}`}
-                    >
-                      <img src={img} alt="" />
-                    </button>
-                  ))}
-                </div>
-              )}
+        {/* ═══ Section 1: Hero Full Viewport ═══ */}
+        <section className="pdp-hero">
+          <div className="pdp-hero__bg">
+            <img
+              src={product.heroImage}
+              alt={product.name}
+              className="pdp-hero__image"
+            />
+          </div>
+          <div className="pdp-hero__content">
+            <ScrollReveal>
+              <h1 className="pdp-hero__title">{product.name}</h1>
+              <p className="pdp-hero__tagline">{product.tagline}</p>
             </ScrollReveal>
+          </div>
+          <div className="pdp-hero__scroll-hint" aria-hidden="true">
+            <span>Cuộn xuống</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </section>
 
-            {/* Product Info */}
-            <div className="product-info">
+        {/* ═══ Section 2: Overview ═══ */}
+        <section className="pdp-overview section">
+          <div className="container">
+            <div className="pdp-overview__grid">
               <ScrollReveal>
-                <h1 className="product-info__name">{product.name}</h1>
+                <div className="pdp-overview__info">
+                  <span className={`pdp-badge ${isInStock ? 'pdp-badge--stock' : 'pdp-badge--preorder'}`}>
+                    {isInStock ? '● Có sẵn' : '○ Pre-Order · 14 ngày'}
+                  </span>
+                  <h2 className="pdp-overview__name">{product.name}</h2>
+                  <p className="pdp-overview__desc">{product.description}</p>
+
+                  <div className="pdp-overview__price-block">
+                    <div className="pdp-overview__price">{formatPrice(product.price)}</div>
+                    {product.bulkPrice && (
+                      <div className="pdp-overview__bulk">
+                        Đặt từ {product.bulkMinQty} bộ: {formatPrice(product.bulkPrice)}/bộ
+                      </div>
+                    )}
+                    <div className="pdp-overview__delivery">
+                      🚚 Giao hàng: {DELIVERY_TIME}
+                    </div>
+                  </div>
+
+                  <Link to={`/quote/${product.slug}`} className="btn btn-primary pdp-overview__cta">
+                    Tính giá đặt đội
+                  </Link>
+                </div>
               </ScrollReveal>
 
               <ScrollReveal delay={1}>
-                <div className="product-info__pricing">
-                  <div className="product-info__price">
-                    {formatPrice(product.price)}
-                  </div>
-                  {product.bulkPrice && (
-                    <div className="product-info__bulk-price">
-                      <span className="product-info__bulk-badge">
-                        Ưu đãi đội
-                      </span>
-                      Đặt từ {product.bulkMinQty} bộ giá còn{' '}
-                      {formatPrice(product.bulkPrice)}
-                    </div>
-                  )}
+                <div className="pdp-overview__visual">
+                  <img src={product.heroImage} alt={product.name} />
                 </div>
               </ScrollReveal>
+            </div>
+          </div>
+        </section>
 
-              <ScrollReveal delay={2}>
-                <p className="product-info__description">
-                  {product.description}
-                </p>
-              </ScrollReveal>
-
-              {/* Material */}
-              <ScrollReveal delay={2}>
-                <div className="product-info__material">
-                  <svg
-                    className="product-info__material-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M20.38 3.46L16 2 12 3.46 8 2 3.62 3.46a.84.84 0 00-.62.82v16.15c0 .48.49.83.94.68L8 19.54l4 1.46 4-1.46 4.38 1.57c.45.15.94-.2.94-.68V4.28c0-.36-.22-.67-.56-.82z" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="product-info__material-text">
-                    <span className="product-info__material-label">
-                      Chất liệu
-                    </span>
-                    {product.material}
-                  </div>
+        {/* ═══ Section 3: Front / Back Views ═══ */}
+        <section className="pdp-views section">
+          <div className="container">
+            <ScrollReveal>
+              <h2 className="pdp-section-title">Thiết kế chi tiết</h2>
+              <p className="pdp-section-subtitle">Mặt trước & mặt sau</p>
+            </ScrollReveal>
+            <div className="pdp-views__grid">
+              <ScrollReveal delay={1}>
+                <div className="pdp-views__card">
+                  <img src={product.frontImage} alt={`${product.name} - Mặt trước`} />
+                  <span className="pdp-views__label">Mặt trước</span>
                 </div>
               </ScrollReveal>
+              <ScrollReveal delay={2}>
+                <div className="pdp-views__card">
+                  <img src={product.backImage} alt={`${product.name} - Mặt sau`} />
+                  <span className="pdp-views__label">Mặt sau</span>
+                </div>
+              </ScrollReveal>
+            </div>
 
-              {/* Color Selection */}
-              {product.colors.length > 0 && (
-                <ScrollReveal delay={3}>
-                  <div className="product-colors">
-                    <div className="product-colors__label">
-                      Màu sắc:{' '}
-                      <span className="product-colors__selected-name">
-                        {currentColor?.name}
-                      </span>
-                    </div>
-                    <div className="product-colors__swatches">
+            {/* Material + Colors */}
+            <ScrollReveal delay={1}>
+              <div className="pdp-material">
+                <div className="pdp-material__item">
+                  <span className="pdp-material__label">Chất liệu</span>
+                  <span className="pdp-material__value">{product.material}</span>
+                </div>
+                {product.colors.length > 0 && (
+                  <div className="pdp-material__item">
+                    <span className="pdp-material__label">Màu sắc</span>
+                    <div className="pdp-material__colors">
                       {product.colors.map((color, i) => (
                         <button
                           key={color.name}
-                          className={`product-color-swatch ${
-                            i === selectedColor ? 'active' : ''
-                          } ${
-                            isLightColor(color.hex)
-                              ? 'product-color-swatch--light'
-                              : ''
-                          }`}
+                          className={`pdp-color-dot ${i === selectedColor ? 'active' : ''}`}
                           style={{ backgroundColor: color.hex }}
-                          onClick={() => handleColorChange(i)}
-                          aria-label={`Chọn màu ${color.name}`}
+                          onClick={() => setSelectedColor(i)}
                           title={color.name}
                         />
                       ))}
+                      <span className="pdp-material__color-name">{currentColor?.name}</span>
                     </div>
+                  </div>
+                )}
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+
+        {/* ═══ Section 4: Print Options ═══ */}
+        <section className="pdp-print section">
+          <div className="container">
+            <ScrollReveal>
+              <h2 className="pdp-section-title">Tuỳ chọn in ấn</h2>
+              <p className="pdp-section-subtitle">Cá nhân hoá áo đấu cho đội của bạn</p>
+            </ScrollReveal>
+
+            <div className="pdp-print__grid">
+              {PRINT_OPTIONS.map((opt, i) => (
+                <ScrollReveal key={opt.id} delay={i + 1}>
+                  <div className="pdp-print__card">
+                    <div className="pdp-print__card-header">
+                      <h3 className="pdp-print__card-name">{opt.name}</h3>
+                      <span className="pdp-print__card-price">{formatPrice(opt.price)}</span>
+                    </div>
+                    <p className="pdp-print__card-desc">{opt.description}</p>
                   </div>
                 </ScrollReveal>
-              )}
+              ))}
+            </div>
 
-              {/* Print Options Preview */}
-              <ScrollReveal delay={3}>
-                <div className="product-print-options">
-                  <h3 className="product-print-options__title">
-                    Tuỳ chọn in ấn
-                  </h3>
-                  {PRINT_OPTIONS.map((opt) => (
-                    <div key={opt.id} className="product-print-option">
-                      <div className="product-print-option__icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                          <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" strokeLinecap="round" strokeLinejoin="round" />
-                          <rect x="6" y="14" width="12" height="8" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                      <div className="product-print-option__info">
-                        <div className="product-print-option__name">
-                          {opt.name}
-                        </div>
-                        <div className="product-print-option__desc">
-                          {opt.description}
-                        </div>
-                      </div>
-                      <div className="product-print-option__price">
-                        +{formatPrice(opt.price)}
-                      </div>
+            {/* Upgrade */}
+            <ScrollReveal delay={3}>
+              <div className="pdp-print__upgrade">
+                {UPGRADE_OPTIONS.map(opt => (
+                  <div key={opt.id} className="pdp-print__upgrade-item">
+                    <div>
+                      <strong>{opt.name}</strong>
+                      <p>{opt.description}</p>
                     </div>
-                  ))}
-                </div>
-              </ScrollReveal>
-
-              {/* Desktop CTA */}
-              <ScrollReveal delay={4}>
-                <div className="product-cta">
-                  <div className="product-cta__inner">
-                    <Link
-                      to={`/quote/${product.slug}`}
-                      className="product-cta__button"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" strokeLinecap="round" strokeLinejoin="round" />
-                        <rect x="9" y="3" width="6" height="4" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M9 14l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      Báo giá đặt đội
-                    </Link>
-                    <a
-                      href={ZALO_LINK}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="product-cta__zalo"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      Liên hệ Zalo
-                    </a>
+                    <span className="pdp-print__upgrade-price">
+                      +{formatPrice(opt.price)}{opt.unit}
+                    </span>
                   </div>
-                </div>
-              </ScrollReveal>
+                ))}
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+
+        {/* ═══ Section 5: Size Chart ═══ */}
+        <section className="pdp-size section">
+          <div className="container">
+            <ScrollReveal>
+              <h2 className="pdp-section-title">Bảng size</h2>
+              <p className="pdp-section-subtitle">Đơn vị: cm</p>
+            </ScrollReveal>
+            <ScrollReveal delay={1}>
+              <div className="pdp-size__table-wrap">
+                <table className="pdp-size__table">
+                  <thead>
+                    <tr>
+                      <th>Size</th>
+                      <th>Ngực</th>
+                      <th>Dài áo</th>
+                      <th>Vai</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SIZE_CHART.map(row => (
+                      <tr key={row.size}>
+                        <td><strong>{row.size}</strong></td>
+                        <td>{row.chest}</td>
+                        <td>{row.length}</td>
+                        <td>{row.shoulder}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+
+        {/* ═══ Section 6: Teams Showcase ═══ */}
+        <section className="pdp-teams section">
+          <div className="container">
+            <ScrollReveal>
+              <h2 className="pdp-section-title">Đội bóng đã sử dụng</h2>
+              <p className="pdp-section-subtitle">Hơn {partners.length}0+ đội bóng tin tưởng Driball</p>
+            </ScrollReveal>
+            <div className="pdp-teams__grid">
+              {partners.slice(0, 6).map((team, i) => (
+                <ScrollReveal key={team.id} delay={i % 3 + 1}>
+                  <div className="pdp-teams__card">
+                    <img src={team.logo} alt={team.name} className="pdp-teams__logo" />
+                    <span className="pdp-teams__name">{team.name}</span>
+                  </div>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* ═══ Section 7: Final CTA ═══ */}
+        <section className="pdp-final-cta section">
+          <div className="container">
+            <ScrollReveal>
+              <div className="pdp-final-cta__box">
+                <h2 className="pdp-final-cta__title">{product.name}</h2>
+                <div className="pdp-final-cta__price">
+                  Từ {formatPrice(product.price)}/bộ
+                </div>
+                <div className="pdp-final-cta__actions">
+                  <Link to={`/quote/${product.slug}`} className="btn btn-primary pdp-final-cta__btn">
+                    Tính giá đặt đội
+                  </Link>
+                  <a
+                    href={ZALO_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline pdp-final-cta__zalo"
+                  >
+                    Liên hệ Zalo
+                  </a>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
 
         {/* Mobile Sticky CTA */}
-        <div className="product-sticky-cta">
-          <div className="product-sticky-cta__inner">
-            <div className="product-sticky-cta__price">
-              <span className="product-sticky-cta__price-value">
-                {formatPrice(product.price)}
-              </span>
-              <span className="product-sticky-cta__price-label">
-                /bộ
-              </span>
+        <div className="pdp-sticky-cta">
+          <div className="pdp-sticky-cta__inner">
+            <div className="pdp-sticky-cta__price">
+              <span className="pdp-sticky-cta__price-value">{formatPrice(product.price)}</span>
+              <span className="pdp-sticky-cta__price-label">/bộ</span>
             </div>
-            <Link
-              to={`/quote/${product.slug}`}
-              className="product-sticky-cta__button"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" strokeLinecap="round" strokeLinejoin="round" />
-                <rect x="9" y="3" width="6" height="4" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M9 14l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Báo giá đặt đội
+            <Link to={`/quote/${product.slug}`} className="btn btn-primary pdp-sticky-cta__btn">
+              Tính giá đặt đội
             </Link>
           </div>
         </div>
+
       </main>
       <Footer />
     </>
