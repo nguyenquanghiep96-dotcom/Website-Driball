@@ -1,25 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ScrollReveal } from '../hooks/useScrollReveal';
-import {
-  products,
-  partners,
-  formatPrice,
-  PRINT_OPTIONS,
-  UPGRADE_OPTIONS,
-  SIZE_CHART,
-  DELIVERY_TIME,
-  ZALO_LINK,
-} from '../data/products';
+import { products, partners, ZALO_LINK } from '../data/products';
 import './ProductPage.css';
+
+const FEATURES = [
+  {
+    title: 'Chất liệu cao cấp.',
+    desc: 'Vải co giãn 4 chiều, siêu nhẹ, siêu thoáng mát, hỗ trợ mọi chuyển động.',
+    image: '/images/hero/HERO1.jpg',
+  },
+  {
+    title: 'Công nghệ in sắc nét.',
+    desc: 'Sử dụng công nghệ DTF tiên tiến cho logo chân thực, không bong tróc.',
+    image: '/images/hero/HERO2.jpg',
+  },
+  {
+    title: 'Đường may tinh xảo.',
+    desc: 'Form áo cứng cáp chuẩn thể thao, hoàn thiện tỉ mỉ từng chi tiết nhỏ.',
+    image: '/images/hero/HERO3.jpg',
+  }
+];
+
+const PROCESS = [
+  { step: '01', title: 'Chọn mẫu & Tư vấn', desc: 'Lựa chọn thiết kế yêu thích và liên hệ Zalo để chốt ý tưởng, số lượng.' },
+  { step: '02', title: 'Thiết kế Demo', desc: 'Driball sẽ lên mockup 3D với logo và màu sắc của đội bạn hoàn toàn miễn phí.' },
+  { step: '03', title: 'Sản xuất', desc: 'Tiến hành may và in ấn với thời gian chuẩn 14 ngày kể từ khi đặt cọc.' },
+  { step: '04', title: 'Giao hàng', desc: 'Kiểm tra chất lượng tỉ mỉ và giao tận tay đến đội bóng của bạn.' },
+];
 
 export default function ProductPage() {
   const { slug } = useParams();
   const product = products.find((p) => p.slug === slug);
-  const [selectedColor, setSelectedColor] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,14 +43,10 @@ export default function ProductPage() {
     return (
       <>
         <Navbar />
-        <main className="pdp">
-          <div className="container">
-            <div className="pdp-not-found">
-              <div className="pdp-not-found__icon">🔍</div>
-              <h1 className="pdp-not-found__title">Không tìm thấy sản phẩm</h1>
-              <p className="pdp-not-found__text">
-                Sản phẩm bạn tìm kiếm không tồn tại hoặc đã bị xoá.
-              </p>
+        <main className="showcase">
+          <div className="sc-container">
+            <div className="sc-not-found">
+              <h1>Không tìm thấy sản phẩm</h1>
               <Link to="/" className="btn btn-primary">Quay lại trang chủ</Link>
             </div>
           </div>
@@ -46,195 +56,106 @@ export default function ProductPage() {
     );
   }
 
-  const currentColor = product.colors[selectedColor];
-  const isInStock = product.availability === 'in-stock';
-
-  // Gather all unique images for the gallery
-  const galleryImages = Array.from(new Set([
-    product.heroImage,
-    product.frontImage,
-    product.backImage,
-    ...(product.images || [])
-  ])).filter(Boolean);
-
   return (
     <>
       <Navbar />
-      <main className="pdp">
-        <div className="pdp-container">
-          
-          {/* Breadcrumb */}
-          <div className="pdp-breadcrumb">
-            <Link to="/">Trang chủ</Link> / <span>{product.name}</span>
+      <main className="showcase">
+        
+        {/* 1. Hero Full Width */}
+        <section className="sc-hero">
+          <div className="sc-hero__bg">
+            <img src={product.heroImage} alt={product.name} />
           </div>
-
-          <div className="pdp-layout">
-            
-            {/* ═══ Left Column: Gallery ═══ */}
-            <div className="pdp-gallery">
-              <div className="pdp-gallery__grid">
-                {galleryImages.map((img, i) => (
-                  <div key={i} className="pdp-gallery__item">
-                    <img src={img} alt={`${product.name} - ${i + 1}`} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ═══ Right Column: Details & Actions ═══ */}
-            <div className="pdp-details">
-              
-              <div className="pdp-details__header">
-                <span className={`pdp-badge ${isInStock ? 'pdp-badge--stock' : 'pdp-badge--preorder'}`}>
-                  {isInStock ? '● Có sẵn' : '○ Pre-Order · 14 ngày'}
-                </span>
-                <h1 className="pdp-details__title">{product.name}</h1>
-                <p className="pdp-details__tagline">{product.tagline}</p>
-                <div className="pdp-details__price">{formatPrice(product.price)}</div>
-                
-                {product.bulkPrice && (
-                  <div className="pdp-details__bulk">
-                    Đặt từ {product.bulkMinQty} bộ: <strong>{formatPrice(product.bulkPrice)}/bộ</strong>
-                  </div>
-                )}
-              </div>
-
-              {/* Color Selection */}
-              {product.colors.length > 0 && (
-                <div className="pdp-section">
-                  <div className="pdp-section__header">
-                    <span className="pdp-section__title">Màu sắc</span>
-                    <span className="pdp-section__value">{currentColor?.name}</span>
-                  </div>
-                  <div className="pdp-colors">
-                    {product.colors.map((color, i) => (
-                      <button
-                        key={color.name}
-                        className={`pdp-color-btn ${i === selectedColor ? 'active' : ''}`}
-                        onClick={() => setSelectedColor(i)}
-                        title={color.name}
-                      >
-                        <span className="pdp-color-swatch" style={{ backgroundColor: color.hex }} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Size Selection */}
-              <div className="pdp-section">
-                <div className="pdp-section__header">
-                  <span className="pdp-section__title">Kích cỡ</span>
-                  <button className="pdp-size-guide-btn">Bảng size</button>
-                </div>
-                <div className="pdp-sizes">
-                  {SIZE_CHART.map((sizeObj) => (
-                    <button
-                      key={sizeObj.size}
-                      className={`pdp-size-btn ${selectedSize === sizeObj.size ? 'active' : ''}`}
-                      onClick={() => setSelectedSize(sizeObj.size)}
-                    >
-                      {sizeObj.size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Print Options List */}
-              <div className="pdp-section">
-                <h3 className="pdp-section__title">Tuỳ chọn in ấn</h3>
-                <div className="pdp-print-options">
-                  {PRINT_OPTIONS.map((opt) => (
-                    <div key={opt.id} className="pdp-print-item">
-                      <div className="pdp-print-item__info">
-                        <strong>{opt.name}</strong>
-                        <p>{opt.description}</p>
-                      </div>
-                      <div className="pdp-print-item__price">
-                        +{formatPrice(opt.price)}
-                      </div>
-                    </div>
-                  ))}
-                  {UPGRADE_OPTIONS.map(opt => (
-                     <div key={opt.id} className="pdp-print-item">
-                     <div className="pdp-print-item__info">
-                       <strong>{opt.name}</strong>
-                       <p>{opt.description}</p>
-                     </div>
-                     <div className="pdp-print-item__price">
-                       +{formatPrice(opt.price)}{opt.unit}
-                     </div>
-                   </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pdp-actions">
-                <Link to={`/quote/${product.slug}`} className="btn btn-primary pdp-actions__primary">
-                  Tính giá đặt đội
-                </Link>
-                <a
-                  href={ZALO_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-outline pdp-actions__secondary"
-                >
-                  Liên hệ Zalo
-                </a>
-                <div className="pdp-delivery-info">
-                  🚚 Giao hàng: {DELIVERY_TIME}
-                </div>
-              </div>
-
-              {/* Description & Material Accordion-style */}
-              <div className="pdp-info-blocks">
-                <div className="pdp-info-block">
-                  <h4 className="pdp-info-block__title">Mô tả sản phẩm</h4>
-                  <p className="pdp-info-block__content">{product.description}</p>
-                </div>
-                <div className="pdp-info-block">
-                  <h4 className="pdp-info-block__title">Chất liệu</h4>
-                  <p className="pdp-info-block__content">{product.material}</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        {/* ═══ Section: Teams Showcase (Full Width below details) ═══ */}
-        <section className="pdp-teams section">
-          <div className="container">
+          <div className="sc-hero__overlay"></div>
+          <div className="sc-hero__content">
             <ScrollReveal>
-              <h2 className="pdp-teams__title">Đội bóng đã sử dụng</h2>
-              <p className="pdp-teams__subtitle">Hơn {partners.length}0+ đội bóng tin tưởng Driball</p>
+              <h1 className="sc-hero__title">{product.name}</h1>
+              <p className="sc-hero__tagline">{product.tagline}</p>
             </ScrollReveal>
-            <div className="pdp-teams__grid">
-              {partners.slice(0, 6).map((team, i) => (
-                <ScrollReveal key={team.id} delay={i % 3 + 1}>
-                  <div className="pdp-teams__card">
-                    <img src={team.logo} alt={team.name} className="pdp-teams__logo" />
-                    <span className="pdp-teams__name">{team.name}</span>
+          </div>
+          <div className="sc-hero__scroll-hint">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M19 12l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+        </section>
+
+        {/* 2. Feature Slider */}
+        <section className="sc-features">
+          <div className="sc-container">
+            <ScrollReveal>
+              <h2 className="sc-section-title">Thiết kế hoàn hảo.<br/>Từng chi tiết.</h2>
+            </ScrollReveal>
+          </div>
+          
+          <div className="sc-slider-wrapper">
+            <div className="sc-slider">
+              {FEATURES.map((feature, i) => (
+                <div key={i} className="sc-slider__slide">
+                  <div className="sc-slider__img-wrapper">
+                    <img src={feature.image} alt={feature.title} className="sc-slider__img" />
                   </div>
-                </ScrollReveal>
+                  <div className="sc-slider__content">
+                    <h3>{feature.title}</h3>
+                    <p>{feature.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Mobile Sticky CTA */}
-        <div className="pdp-sticky-cta">
-          <div className="pdp-sticky-cta__inner">
-            <div className="pdp-sticky-cta__price">
-              <span className="pdp-sticky-cta__price-value">{formatPrice(product.price)}</span>
-              <span className="pdp-sticky-cta__price-label">/bộ</span>
+        {/* 3. Teams & Process */}
+        <section className="sc-info">
+          <div className="sc-container">
+            
+            {/* Teams */}
+            <div className="sc-teams">
+              <ScrollReveal>
+                <h2 className="sc-section-title">Niềm tin của<br/>hơn {partners.length}0+ đội bóng.</h2>
+              </ScrollReveal>
+              <div className="sc-teams__grid">
+                {partners.slice(0, 6).map((team, i) => (
+                  <ScrollReveal key={team.id} delay={i % 3 + 1}>
+                    <div className="sc-teams__card">
+                      <img src={team.logo} alt={team.name} />
+                      <span>{team.name}</span>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
             </div>
-            <Link to={`/quote/${product.slug}`} className="btn btn-primary pdp-sticky-cta__btn">
-              Tính giá đặt đội
-            </Link>
+
+            {/* Process */}
+            <div className="sc-process">
+              <ScrollReveal>
+                <h2 className="sc-section-title">Quy trình đặt đội.<br/>Nhanh chóng, rõ ràng.</h2>
+              </ScrollReveal>
+              <div className="sc-process__grid">
+                {PROCESS.map((step, i) => (
+                  <ScrollReveal key={i} delay={i + 1}>
+                    <div className="sc-process__step">
+                      <div className="sc-process__num">{step.step}</div>
+                      <h4 className="sc-process__title">{step.title}</h4>
+                      <p className="sc-process__desc">{step.desc}</p>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+
+            {/* Final CTA */}
+            <div className="sc-final-cta">
+              <ScrollReveal>
+                <h2 className="sc-final-cta__title">Sẵn sàng ra sân?</h2>
+                <a href={ZALO_LINK} target="_blank" rel="noopener noreferrer" className="btn btn-primary sc-final-cta__btn">
+                  Liên hệ Zalo báo giá ngay
+                </a>
+              </ScrollReveal>
+            </div>
+
           </div>
-        </div>
+        </section>
 
       </main>
       <Footer />
