@@ -60,7 +60,7 @@
 }
 
 .product-card__badge--preorder {
-  color: var(--color-blue);
+  color: var(--color-gray);
 }
 
 .product-card__image {
