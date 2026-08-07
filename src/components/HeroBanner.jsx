@@ -1,5 +1,12 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './HeroBanner.css';
+
+const HERO_IMAGES = [
+  '/images/hero/HERO1.jpg',
+  '/images/hero/HERO2.jpg',
+  '/images/hero/HERO3.jpg',
+];
 
 /**
  * Hero Banner with 2 display modes:
@@ -10,6 +17,15 @@ import './HeroBanner.css';
  */
 export default function HeroBanner({ mode = 'image' }) {
   const isProduct = mode === 'product';
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (!isProduct) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [isProduct]);
 
   return (
     <section className="hero">
@@ -23,18 +39,23 @@ export default function HeroBanner({ mode = 'image' }) {
           />
         )}
 
-        {/* Mode: Product with typo */}
+        {/* Mode: Product with typo / slider */}
         {isProduct && (
           <>
-            <div className="hero__typo" aria-hidden="true">
+            <div className="hero__typo" aria-hidden="true" style={{ display: 'none' }}>
               <span className="hero__typo-line">STARS</span>
               <span className="hero__typo-line">SERIES</span>
             </div>
-            <img
-              src="/images/hero/hero.png"
-              alt="Stars Series"
-              className="hero__product-img"
-            />
+            
+            {/* Slider Images */}
+            {HERO_IMAGES.map((src, index) => (
+              <img
+                key={src}
+                src={src}
+                alt={`Hero ${index + 1}`}
+                className={`hero__slider-img ${index === currentSlide ? 'hero__slider-img--active' : ''}`}
+              />
+            ))}
           </>
         )}
 
