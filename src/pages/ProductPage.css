@@ -104,13 +104,13 @@
 
 .pdp-details__title {
   font-family: var(--font-display);
-  font-size: clamp(24px, 3vw, 40px);
+  font-size: clamp(32px, 4vw, 60px);
   font-weight: 900;
   color: var(--color-dark);
   line-height: 1.1;
   text-transform: uppercase;
   margin-bottom: 8px;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
 }
 
 .pdp-details__tagline {
@@ -121,10 +121,11 @@
 
 .pdp-details__price {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: clamp(24px, 4vw, 40px);
   font-weight: 800;
   color: var(--color-dark);
   margin-bottom: 8px;
+  letter-spacing: 0.05em;
 }
 
 .pdp-details__bulk {
