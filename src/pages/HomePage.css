@@ -7,3 +7,14 @@
 .home-page main {
   padding-bottom: var(--space-section);
 }
+
+@media (max-width: 640px) {
+  .home-page main {
+    padding-bottom: 48px;
+  }
+
+  .home-page .section:not(.bento) {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}

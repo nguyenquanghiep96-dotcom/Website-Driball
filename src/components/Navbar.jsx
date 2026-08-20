@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ZALO_LINK } from '../data/products';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -32,20 +31,18 @@ export default function Navbar() {
 
         {/* Desktop nav links */}
         <ul className="navbar__links">
-          <li><a href="#products">SHOP</a></li>
-          <li><a href={ZALO_LINK} target="_blank" rel="noopener noreferrer">ĐẶT ĐỘI</a></li>
-          <li><a href="#about">VỀ DRIBALL</a></li>
+          <li><Link to="/catalog">CATALOG</Link></li>
+          <li><Link to="/quote/stripe-series-blue">ĐẶT ĐỘI</Link></li>
+          <li><Link to="/#about">VỀ DRIBALL</Link></li>
         </ul>
 
         {/* Desktop CTA */}
-        <a
-          href={ZALO_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/quote/stripe-series-blue"
           className="btn btn-primary navbar__cta"
         >
-          BÁO GIÁ ĐẶT ĐỘI
-        </a>
+          TÍNH GIÁ NHANH
+        </Link>
 
         {/* Mobile hamburger */}
         <button
@@ -62,19 +59,17 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div className={`navbar__drawer ${menuOpen ? 'navbar__drawer--open' : ''}`}>
         <ul className="navbar__drawer-links">
-          <li><a href="#products" onClick={() => setMenuOpen(false)}>SHOP</a></li>
-          <li><a href={ZALO_LINK} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>ĐẶT ĐỘI</a></li>
-          <li><a href="#about" onClick={() => setMenuOpen(false)}>VỀ DRIBALL</a></li>
+          <li><Link to="/catalog" onClick={() => setMenuOpen(false)}>CATALOG</Link></li>
+          <li><Link to="/quote/stripe-series-blue" onClick={() => setMenuOpen(false)}>ĐẶT ĐỘI</Link></li>
+          <li><Link to="/#about" onClick={() => setMenuOpen(false)}>VỀ DRIBALL</Link></li>
           <li>
-            <a
-              href={ZALO_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/quote/stripe-series-blue"
               className="btn btn-primary navbar__drawer-cta"
               onClick={() => setMenuOpen(false)}
             >
-              BÁO GIÁ ĐẶT ĐỘI
-            </a>
+              TÍNH GIÁ NHANH
+            </Link>
           </li>
         </ul>
       </div>

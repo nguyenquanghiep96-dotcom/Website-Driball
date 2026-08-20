@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { ScrollReveal } from '../hooks/useScrollReveal';
 import {
   products,
   formatPrice,
@@ -15,218 +14,205 @@ import {
 } from '../data/products';
 import './QuotePage.css';
 
+const getInitialParams = () => new URLSearchParams(window.location.search);
+
+const copyText = async (text) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  textarea.remove();
+};
+
 export default function QuotePage() {
   const { slug } = useParams();
-  const product = products.find((p) => p.slug === slug);
+  const navigate = useNavigate();
+  const product = products.find((item) => item.slug === slug);
 
-  const [selectedColor, setSelectedColor] = useState(0);
-  const [quantity, setQuantity] = useState(1);
-  const [selectedPrintOptions, setSelectedPrintOptions] = useState([]);
-  const [selectedUpgradeOptions, setSelectedUpgradeOptions] = useState([]);
+  const [selectedColor, setSelectedColor] = useState(() => Number(getInitialParams().get('color')) || 0);
+  const [quantity, setQuantity] = useState(() => {
+    const requestedQuantity = getInitialParams().get('qty');
+    if (!requestedQuantity) return 10;
+    const parsed = Number(requestedQuantity);
+    return Number.isFinite(parsed) ? Math.max(1, Math.min(999, parsed)) : 10;
+  });
+  const [selectedPrintOption, setSelectedPrintOption] = useState(() => {
+    const requested = getInitialParams().get('print');
+    return PRINT_OPTIONS.some((option) => option.id === requested) ? requested : 'basic';
+  });
+  const [selectedUpgradeOptions, setSelectedUpgradeOptions] = useState(() => {
+    const requested = (getInitialParams().get('upgrades') || '').split(',').filter(Boolean);
+    return requested.filter((id) => UPGRADE_OPTIONS.some((option) => option.id === id));
+  });
+  const [notice, setNotice] = useState('');
   const [priceAnimating, setPriceAnimating] = useState(false);
 
-  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
 
-  // Animate price on change
   useEffect(() => {
     setPriceAnimating(true);
-    const timer = setTimeout(() => setPriceAnimating(false), 300);
-    return () => clearTimeout(timer);
-  }, [quantity, selectedPrintOptions.length, selectedUpgradeOptions.length]);
+    const timer = window.setTimeout(() => setPriceAnimating(false), 260);
+    return () => window.clearTimeout(timer);
+  }, [quantity, selectedPrintOption, selectedUpgradeOptions, slug]);
 
-  // Pricing calculations
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timer = window.setTimeout(() => setNotice(''), 2800);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
   const pricing = useMemo(() => {
     if (!product) return {};
-
-    const unitPrice = getUnitPrice(product.price, quantity);
-    const printTotal = selectedPrintOptions.reduce(
-      (sum, id) => sum + (PRINT_OPTIONS.find((o) => o.id === id)?.price || 0),
+    const baseUnitPrice = getUnitPrice(product.price, quantity);
+    const printPrice = PRINT_OPTIONS.find((option) => option.id === selectedPrintOption)?.price || 0;
+    const upgradesPrice = selectedUpgradeOptions.reduce(
+      (total, id) => total + (UPGRADE_OPTIONS.find((option) => option.id === id)?.price || 0),
       0
     );
-    const upgradeTotal = selectedUpgradeOptions.reduce(
-      (sum, id) => sum + (UPGRADE_OPTIONS.find((o) => o.id === id)?.price || 0),
-      0
-    );
-    const optionsTotal = printTotal + upgradeTotal;
-    const pricePerUnit = unitPrice + optionsTotal;
-    const totalPrice = pricePerUnit * quantity;
+    const pricePerUnit = baseUnitPrice + printPrice + upgradesPrice;
+    return {
+      baseUnitPrice,
+      printPrice,
+      upgradesPrice,
+      pricePerUnit,
+      totalPrice: pricePerUnit * quantity,
+    };
+  }, [product, quantity, selectedPrintOption, selectedUpgradeOptions]);
 
-    return { unitPrice, optionsTotal, pricePerUnit, totalPrice };
-  }, [product, quantity, selectedPrintOptions, selectedUpgradeOptions]);
-
-  // Active tier
   const activeTier = useMemo(() => {
-    const sorted = [...PRICE_TIERS].sort((a, b) => b.minQty - a.minQty);
-    return sorted.find((t) => quantity >= t.minQty);
+    const tiers = [...PRICE_TIERS].sort((a, b) => b.minQty - a.minQty);
+    return tiers.find((tier) => quantity >= tier.minQty);
   }, [quantity]);
 
   if (!product) {
     return (
       <>
         <Navbar />
-        <main className="quote-page">
-          <div className="container">
-            <div className="quote-not-found">
-              <div className="quote-not-found__icon">🔍</div>
-              <h1 className="quote-not-found__title">
-                Không tìm thấy sản phẩm
-              </h1>
-              <p className="quote-not-found__text">
-                Sản phẩm bạn tìm kiếm không tồn tại hoặc đã bị xoá.
-              </p>
-              <Link to="/" className="quote-not-found__link">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                Quay lại trang chủ
-              </Link>
-            </div>
-          </div>
+        <main className="quote-page quote-page--empty">
+          <h1>Không tìm thấy mẫu áo.</h1>
+          <Link to="/">Xem catalog</Link>
         </main>
         <Footer />
       </>
     );
   }
 
-  const currentColor = product.colors[selectedColor];
+  const safeColorIndex = Math.min(selectedColor, Math.max(product.colors.length - 1, 0));
+  const currentColor = product.colors[safeColorIndex];
   const currentImage = currentColor?.image || product.heroImage;
+  const selectedPrint = PRINT_OPTIONS.find((option) => option.id === selectedPrintOption);
+  const selectedUpgrades = UPGRADE_OPTIONS.filter((option) => selectedUpgradeOptions.includes(option.id));
 
-  const isLightColor = (hex) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return (r * 299 + g * 587 + b * 114) / 1000 > 200;
+  const buildShareUrl = (overrides = {}) => {
+    const params = new URLSearchParams();
+    params.set('qty', String(overrides.quantity ?? quantity));
+    params.set('print', overrides.print ?? selectedPrintOption);
+    params.set('color', String(overrides.color ?? safeColorIndex));
+    const upgrades = overrides.upgrades ?? selectedUpgradeOptions;
+    if (upgrades.length) params.set('upgrades', upgrades.join(','));
+    const nextSlug = overrides.slug || product.slug;
+    return `${window.location.origin}/quote/${nextSlug}?${params.toString()}`;
   };
 
-  const togglePrintOption = (id) => {
-    setSelectedPrintOptions((prev) =>
-      prev.includes(id) ? prev.filter((o) => o !== id) : [...prev, id]
+  const changeProduct = (nextSlug) => {
+    if (nextSlug === product.slug) return;
+    setSelectedColor(0);
+    navigate(buildShareUrl({ slug: nextSlug, color: 0 }).replace(window.location.origin, ''));
+  };
+
+  const toggleUpgrade = (id) => {
+    setSelectedUpgradeOptions((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
   };
 
-  const toggleUpgradeOption = (id) => {
-    setSelectedUpgradeOptions((prev) =>
-      prev.includes(id) ? prev.filter((o) => o !== id) : [...prev, id]
-    );
+  const saveQuote = async () => {
+    const quoteUrl = buildShareUrl();
+    const savedQuote = {
+      product: product.slug,
+      quantity,
+      print: selectedPrintOption,
+      upgrades: selectedUpgradeOptions,
+      color: safeColorIndex,
+      url: quoteUrl,
+      savedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem('driball-saved-quote', JSON.stringify(savedQuote));
+
+    try {
+      await copyText(quoteUrl);
+      setNotice('Đã lưu và sao chép link báo giá');
+    } catch {
+      setNotice('Đã lưu báo giá trên thiết bị này');
+    }
   };
 
-  const handleQuantityChange = (delta) => {
-    setQuantity((prev) => Math.max(1, prev + delta));
-  };
-
-  const handleSendZalo = () => {
-    const selectedPrintObjs = PRINT_OPTIONS.filter((o) =>
-      selectedPrintOptions.includes(o.id)
-    );
-    const selectedUpgradeObjs = UPGRADE_OPTIONS.filter((o) =>
-      selectedUpgradeOptions.includes(o.id)
-    );
-
+  const sendToZalo = async () => {
+    const quoteUrl = buildShareUrl();
     const message = buildZaloMessage({
       product,
       color: currentColor?.name,
       quantity,
       unitPrice: pricing.pricePerUnit,
       totalPrice: pricing.totalPrice,
-      printOptions: selectedPrintObjs,
-      upgradeOptions: selectedUpgradeObjs,
+      printOptions: selectedPrint?.price ? [selectedPrint] : [],
+      upgradeOptions: selectedUpgrades,
+      quoteUrl,
     });
 
-    window.open(
-      ZALO_LINK + '?text=' + encodeURIComponent(message),
-      '_blank',
-      'noopener,noreferrer'
-    );
+    try {
+      await copyText(message);
+      setNotice('Đã sao chép báo giá — dán vào Zalo để gửi');
+    } catch {
+      setNotice('Đang mở Zalo');
+    }
+
+    window.open(`${ZALO_LINK}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
-  // Summary content (shared between desktop and mobile)
-  const SummaryContent = () => (
+  const Summary = () => (
     <>
-      <div className="quote-summary__title">Tóm tắt đơn hàng</div>
-
-      <div className="quote-summary__row">
-        <span className="quote-summary__row-label">{product.name}</span>
-        <span className="quote-summary__row-value">
-          {currentColor?.name}
-        </span>
+      <div className="quote-summary__eyebrow">BÁO GIÁ THAM KHẢO</div>
+      <div className="quote-summary__product">
+        <img src={currentImage} alt="" />
+        <div>
+          <strong>{product.name}</strong>
+          <span>{currentColor?.name || 'Màu tiêu chuẩn'}</span>
+        </div>
       </div>
 
-      <div className="quote-summary__row">
-        <span className="quote-summary__row-label">Số lượng</span>
-        <span className="quote-summary__row-value">{quantity} bộ</span>
+      <div className="quote-summary__lines">
+        <div><span>Áo · {quantity} bộ</span><strong>{formatPrice(pricing.baseUnitPrice)}/bộ</strong></div>
+        <div><span>{selectedPrint?.name}</span><strong>{pricing.printPrice ? `+${formatPrice(pricing.printPrice)}` : '0đ'}</strong></div>
+        {selectedUpgrades.map((option) => (
+          <div key={option.id}><span>{option.name}</span><strong>+{formatPrice(option.price)}</strong></div>
+        ))}
       </div>
 
-      <div className="quote-summary__row">
-        <span className="quote-summary__row-label">Đơn giá gốc</span>
-        <span className="quote-summary__row-value">
-          {formatPrice(pricing.unitPrice)}
-        </span>
+      <div className="quote-summary__total">
+        <span>Tạm tính</span>
+        <strong className={priceAnimating ? 'is-updating' : ''}>{formatPrice(pricing.totalPrice)}</strong>
+        <small>{formatPrice(pricing.pricePerUnit)} / bộ</small>
       </div>
 
-      {(selectedPrintOptions.length > 0 || selectedUpgradeOptions.length > 0) && (
-        <>
-          <hr className="quote-summary__divider" />
-
-          {selectedPrintOptions.map((id) => {
-            const opt = PRINT_OPTIONS.find((o) => o.id === id);
-            if (!opt) return null;
-            return (
-              <div key={id} className="quote-summary__option">
-                <span className="quote-summary__option-name">
-                  <span className="quote-summary__option-dot" />
-                  {opt.name}
-                </span>
-                <span className="quote-summary__option-price">
-                  +{formatPrice(opt.price)}
-                </span>
-              </div>
-            );
-          })}
-
-          {selectedUpgradeOptions.map((id) => {
-            const opt = UPGRADE_OPTIONS.find((o) => o.id === id);
-            if (!opt) return null;
-            return (
-              <div key={id} className="quote-summary__option">
-                <span className="quote-summary__option-name">
-                  <span className="quote-summary__option-dot" />
-                  {opt.name}
-                </span>
-                <span className="quote-summary__option-price">
-                  +{formatPrice(opt.price)}
-                </span>
-              </div>
-            );
-          })}
-        </>
-      )}
-
-      <hr className="quote-summary__divider" />
-
-      <div className="quote-summary__total-row">
-        <span className="quote-summary__total-label">Tổng cộng</span>
-        <span
-          className={`quote-summary__total-price quote-price-animated ${
-            priceAnimating ? 'updating' : ''
-          }`}
-        >
-          {formatPrice(pricing.totalPrice)}
-        </span>
-      </div>
-
-      <div className="quote-summary__per-unit">
-        {formatPrice(pricing.pricePerUnit)}/bộ × {quantity} bộ
-      </div>
-
-      <button className="quote-summary__cta" onClick={handleSendZalo}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        Gửi báo giá qua Zalo
+      <button className="quote-action quote-action--zalo" onClick={sendToZalo}>
+        Gửi Driball qua Zalo <span>↗</span>
       </button>
+      <button className="quote-action quote-action--save" onClick={saveQuote}>
+        Lưu & sao chép link cho team
+      </button>
+      <p className="quote-summary__note">Giá cuối cùng được xác nhận sau khi duyệt thiết kế và số lượng thực tế.</p>
     </>
   );
 
@@ -234,288 +220,153 @@ export default function QuotePage() {
     <>
       <Navbar />
       <main className="quote-page">
-        <div className="container">
-          {/* Back Button */}
-          <ScrollReveal>
-            <Link to={`/product/${product.slug}`} className="quote-back">
-              <span className="quote-back__arrow">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              Quay lại sản phẩm
-            </Link>
-          </ScrollReveal>
+        <header className="quote-cover">
+          <div>
+            <span>DRIBALL KIT CONFIGURATOR</span>
+            <h1>Tự phối.<br />Tự tính.</h1>
+          </div>
+          <p>Chọn mẫu, số lượng và cách in. Giá thay đổi ngay khi bạn chọn.</p>
+          <Link to={`/product/${product.slug}`}>← Xem lại chi tiết mẫu</Link>
+        </header>
 
-          {/* Header */}
-          <ScrollReveal>
-            <div className="quote-header">
-              <h1 className="quote-header__title">Báo giá đặt đội</h1>
-              <p className="quote-header__subtitle">
-                Tuỳ chỉnh và nhận báo giá ngay — nhanh chóng, minh bạch.
-              </p>
-            </div>
-          </ScrollReveal>
-
-          {/* Layout: Steps + Summary */}
-          <div className="quote-layout">
-            {/* Steps Column */}
-            <div className="quote-steps">
-              {/* Step 1: Product Confirmation */}
-              <ScrollReveal>
-                <div className="quote-step">
-                  <span className="quote-step__number">1</span>
-                  <h2 className="quote-step__title">Sản phẩm đã chọn</h2>
-
-                  <div className="quote-product">
-                    <div className="quote-product__image">
-                      <img
-                        src={currentImage}
-                        alt={product.name}
-                      />
-                    </div>
-                    <div className="quote-product__details">
-                      <h3 className="quote-product__name">{product.name}</h3>
-                      <div className="quote-product__price">
-                        {formatPrice(pricing.unitPrice)}/bộ
-                      </div>
-
-                      {product.colors.length > 1 && (
-                        <div>
-                          <div className="quote-colors__label">
-                            Màu:{' '}
-                            <span className="quote-colors__selected-name">
-                              {currentColor?.name}
-                            </span>
-                          </div>
-                          <div className="quote-colors__swatches">
-                            {product.colors.map((color, i) => (
-                              <button
-                                key={color.name}
-                                className={`quote-color-swatch ${
-                                  i === selectedColor ? 'active' : ''
-                                } ${
-                                  isLightColor(color.hex)
-                                    ? 'quote-color-swatch--light'
-                                    : ''
-                                }`}
-                                style={{ backgroundColor: color.hex }}
-                                onClick={() => setSelectedColor(i)}
-                                aria-label={`Chọn màu ${color.name}`}
-                                title={color.name}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+        <div className="quote-workspace">
+          <div className="quote-builder">
+            <section className="quote-block quote-block--products">
+              <div className="quote-block__heading">
+                <span>01</span>
+                <div>
+                  <p>CHỌN MẪU</p>
+                  <h2>{product.name}</h2>
                 </div>
-              </ScrollReveal>
-
-              {/* Step 2: Quantity */}
-              <ScrollReveal>
-                <div className="quote-step">
-                  <span className="quote-step__number">2</span>
-                  <h2 className="quote-step__title">Chọn số lượng</h2>
-
-                  <div className="quote-quantity">
-                    <div className="quote-quantity__input-row">
-                      <button
-                        className="quote-quantity__btn"
-                        onClick={() => handleQuantityChange(-1)}
-                        disabled={quantity <= 1}
-                        aria-label="Giảm số lượng"
-                      >
-                        −
-                      </button>
-                      <span className="quote-quantity__value">
-                        {quantity}
-                        <span className="quote-quantity__unit"> bộ</span>
-                      </span>
-                      <button
-                        className="quote-quantity__btn"
-                        onClick={() => handleQuantityChange(1)}
-                        aria-label="Tăng số lượng"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div className="quote-tiers">
-                      {PRICE_TIERS.map((tier) => (
-                        <div
-                          key={tier.minQty}
-                          className={`quote-tier ${
-                            activeTier?.minQty === tier.minQty ? 'active' : ''
-                          }`}
-                        >
-                          <div className="quote-tier__label">{tier.label}</div>
-                          <div className="quote-tier__price">
-                            {formatPrice(product.price - tier.discount)}
-                            /bộ
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              {/* Step 3: Print Options */}
-              <ScrollReveal>
-                <div className="quote-step">
-                  <span className="quote-step__number">3</span>
-                  <h2 className="quote-step__title">Tuỳ chọn in ấn</h2>
-
-                  <div className="quote-options">
-                    {PRINT_OPTIONS.map((opt) => (
-                      <div
-                        key={opt.id}
-                        className={`quote-option-card ${
-                          selectedPrintOptions.includes(opt.id) ? 'selected' : ''
-                        }`}
-                        onClick={() => togglePrintOption(opt.id)}
-                        role="checkbox"
-                        aria-checked={selectedPrintOptions.includes(opt.id)}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            togglePrintOption(opt.id);
-                          }
-                        }}
-                      >
-                        <div className="quote-option-card__check">
-                          <svg
-                            className="quote-option-card__check-icon"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 14 14"
-                            fill="none"
-                          >
-                            <path
-                              d="M3 7L6 10L11 4"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </div>
-                        <div className="quote-option-card__info">
-                          <div className="quote-option-card__name">
-                            {opt.name}
-                          </div>
-                          <div className="quote-option-card__desc">
-                            {opt.description}
-                          </div>
-                        </div>
-                        <div className="quote-option-card__price">
-                          +{formatPrice(opt.price)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </ScrollReveal>
-
-              {/* Step 4: Upgrades */}
-              <ScrollReveal>
-                <div className="quote-step">
-                  <span className="quote-step__number">4</span>
-                  <h2 className="quote-step__title">Nâng cấp</h2>
-
-                  <div className="quote-options">
-                    {UPGRADE_OPTIONS.map((opt) => (
-                      <div
-                        key={opt.id}
-                        className={`quote-option-card ${
-                          selectedUpgradeOptions.includes(opt.id)
-                            ? 'selected'
-                            : ''
-                        }`}
-                        onClick={() => toggleUpgradeOption(opt.id)}
-                        role="checkbox"
-                        aria-checked={selectedUpgradeOptions.includes(opt.id)}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggleUpgradeOption(opt.id);
-                          }
-                        }}
-                      >
-                        <div className="quote-option-card__check">
-                          <svg
-                            className="quote-option-card__check-icon"
-                            width="14"
-                            height="14"
-                            viewBox="0 0 14 14"
-                            fill="none"
-                          >
-                            <path
-                              d="M3 7L6 10L11 4"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </div>
-                        <div className="quote-option-card__info">
-                          <div className="quote-option-card__name">
-                            {opt.name}
-                          </div>
-                          <div className="quote-option-card__desc">
-                            {opt.description}
-                          </div>
-                        </div>
-                        <div className="quote-option-card__price">
-                          +{formatPrice(opt.price)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-
-            {/* Desktop Summary Sidebar */}
-            <div className="quote-summary-wrapper">
-              <div className="quote-summary">
-                <SummaryContent />
               </div>
-            </div>
+
+              <div className="quote-product-picker">
+                <article className="quote-product-current">
+                  <div className="quote-product-current__visual"><img src={currentImage} alt={product.name} /></div>
+                  <div className="quote-product-current__copy">
+                    <span>MẪU ĐANG CHỌN</span>
+                    <h3>{product.name}</h3>
+                    <p>{product.tagline}</p>
+                    <label>
+                      <span>Đổi sang mẫu khác</span>
+                      <select value={product.slug} onChange={(event) => changeProduct(event.target.value)}>
+                        {products.map((item) => <option value={item.slug} key={item.id}>{item.name} · {item.colors[0]?.name}</option>)}
+                      </select>
+                    </label>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section className="quote-block quote-block--quantity">
+              <div className="quote-block__heading">
+                <span>02</span>
+                <div>
+                  <p>SỐ LƯỢNG</p>
+                  <h2>Càng đông, giá càng tốt.</h2>
+                </div>
+              </div>
+
+              <div className="quote-quantity-control">
+                <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Giảm số lượng">−</button>
+                <label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="999"
+                    value={quantity}
+                    onChange={(event) => setQuantity(Math.max(1, Math.min(999, Number(event.target.value) || 1)))}
+                    aria-label="Số lượng bộ"
+                  />
+                  <span>BỘ</span>
+                </label>
+                <button onClick={() => setQuantity((value) => Math.min(999, value + 1))} aria-label="Tăng số lượng">+</button>
+              </div>
+
+              <div className="quote-quick-quantities">
+                {[10, 20, 30, 50].map((value) => (
+                  <button key={value} onClick={() => setQuantity(value)} className={quantity === value ? 'is-active' : ''}>{value} bộ</button>
+                ))}
+              </div>
+
+              <div className="quote-tiers">
+                {PRICE_TIERS.map((tier) => (
+                  <button
+                    key={tier.minQty}
+                    className={activeTier?.minQty === tier.minQty ? 'is-active' : ''}
+                    onClick={() => setQuantity(tier.minQty)}
+                  >
+                    <span>{tier.label}</span>
+                    <strong>{formatPrice(product.price - tier.discount)}</strong>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="quote-block quote-block--print">
+              <div className="quote-block__heading">
+                <span>03</span>
+                <div>
+                  <p>IN ẤN</p>
+                  <h2>Đặt dấu ấn của đội.</h2>
+                </div>
+              </div>
+
+              <div className="quote-option-grid">
+                {PRINT_OPTIONS.map((option, index) => (
+                  <button
+                    key={option.id}
+                    className={selectedPrintOption === option.id ? 'is-active' : ''}
+                    onClick={() => setSelectedPrintOption(option.id)}
+                    aria-pressed={selectedPrintOption === option.id}
+                  >
+                    <span>0{index + 1}</span>
+                    <h3>{option.name}</h3>
+                    <p>{option.description}</p>
+                    <strong>{option.price ? `+${formatPrice(option.price)} / bộ` : 'Không cộng thêm'}</strong>
+                    <i>{selectedPrintOption === option.id ? 'Đã chọn' : 'Chọn'}</i>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="quote-block quote-block--upgrade">
+              <div className="quote-block__heading">
+                <span>04</span>
+                <div>
+                  <p>NÂNG CẤP</p>
+                  <h2>Thêm nếu bạn muốn.</h2>
+                </div>
+              </div>
+
+              <div className="quote-upgrades">
+                {UPGRADE_OPTIONS.map((option) => {
+                  const selected = selectedUpgradeOptions.includes(option.id);
+                  return (
+                    <button key={option.id} onClick={() => toggleUpgrade(option.id)} className={selected ? 'is-active' : ''} aria-pressed={selected}>
+                      <span className="quote-upgrades__check">{selected ? '✓' : '+'}</span>
+                      <div><h3>{option.name}</h3><p>{option.description}</p></div>
+                      <strong>+{formatPrice(option.price)}{option.unit}</strong>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
           </div>
+
+          <aside className="quote-summary"><Summary /></aside>
         </div>
 
-        {/* Mobile Sticky Summary */}
-        <div className="quote-mobile-summary">
-          <div className="quote-mobile-summary__inner">
-            <div className="quote-mobile-summary__top">
-              <span className="quote-mobile-summary__label">
-                {quantity} bộ × {formatPrice(pricing.pricePerUnit)}
-              </span>
-              <span
-                className={`quote-mobile-summary__total quote-price-animated ${
-                  priceAnimating ? 'updating' : ''
-                }`}
-              >
-                {formatPrice(pricing.totalPrice)}
-              </span>
-            </div>
-            <button
-              className="quote-mobile-summary__cta"
-              onClick={handleSendZalo}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Gửi báo giá qua Zalo
-            </button>
+        <div className="quote-mobile-bar">
+          <div className="quote-mobile-bar__price">
+            <span>{quantity} bộ · {selectedPrint?.name}</span>
+            <strong>{formatPrice(pricing.totalPrice)}</strong>
+            <small>Áo {formatPrice(pricing.baseUnitPrice)} + in {pricing.printPrice ? formatPrice(pricing.printPrice) : '0đ'} · <b>{formatPrice(pricing.pricePerUnit)}/bộ sau in</b></small>
           </div>
+          <button onClick={sendToZalo}>Gửi Zalo ↗</button>
         </div>
+
+        {notice && <div className="quote-notice" role="status">{notice}</div>}
       </main>
       <Footer />
     </>

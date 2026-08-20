@@ -1,76 +1,79 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './HeroBanner.css';
 
-const HERO_IMAGES = [
-  '/images/hero/HERO1.jpg',
-  '/images/hero/HERO2.jpg',
-  '/images/hero/HERO3.jpg',
+const HERO_SLIDES = [
+  {
+    eyebrow: 'DRIBALL / NEW SEASON 2026',
+    title: <>DRIBALL<br /><em>TRONG TỦ ĐỒ.</em></>,
+    description: 'Mẫu áo có chất sân cỏ, nhưng không chịu đứng yên trong sân.',
+    image: '/images/products/stripe-blue/details/lifestyle.jpg',
+    alt: 'Hai người mẫu mặc áo Driball Stripe Series',
+    product: '/product/stripe-series-blue',
+    quote: '/quote/stripe-series-blue',
+    label: 'STRIPE SERIES',
+    kind: 'photo',
+  },
+  {
+    eyebrow: 'RAGLAN MOTION / FIRST LOOK',
+    title: <>ÁO ĐẸP.<br /><em>KÈO THÊM NHIỆT.</em></>,
+    description: 'Vai raglan chuyển động linh hoạt, đồ hoạ đủ nổi để nhận ra đội bạn từ xa.',
+    image: '/images/products/raglan/blue.jpg',
+    alt: 'Áo Driball Raglan Motion màu navy',
+    product: '/product/raglan-motion-series',
+    quote: '/quote/raglan-motion-series',
+    label: 'RAGLAN MOTION',
+    kind: 'render',
+  },
+  {
+    eyebrow: 'FROM THE PITCH TO THE STREET',
+    title: <>RA SÂN.<br /><em>RA CHẤT.</em></>,
+    description: 'Một form áo thể thao đủ sạch để thi đấu, đủ cá tính để mặc tiếp sau trận.',
+    image: '/images/hero-slides/red-white-editorial.jpg',
+    alt: 'Người mẫu Driball với áo bóng đá đỏ và trắng',
+    product: '/catalog',
+    quote: '/quote/stripe-series-red',
+    label: 'MATCH & LIFESTYLE',
+    kind: 'editorial',
+  },
 ];
 
-/**
- * Hero Banner with 2 display modes:
- *   mode="image"   → Full cover image (default, current HERO1.jpg)
- *   mode="product"  → Transparent product image + large typo text (Apple iPad Air style)
- *
- * Switch by changing the mode prop from HomePage.
- */
-export default function HeroBanner({ mode = 'image' }) {
-  const isProduct = mode === 'product';
-  const [currentSlide, setCurrentSlide] = useState(0);
+export default function HeroBanner() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slide = HERO_SLIDES[activeSlide];
 
   useEffect(() => {
-    if (!isProduct) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [isProduct]);
+    const timer = window.setInterval(() => setActiveSlide((value) => (value + 1) % HERO_SLIDES.length), 6500);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
-    <section className="hero">
-      <div className={`hero__card ${isProduct ? 'hero__card--product' : 'hero__card--image'}`}>
-        {/* Mode: Full cover image */}
-        {!isProduct && (
-          <img
-            src="/images/hero/HERO1.jpg"
-            alt="Driball - Bộ sưu tập mới"
-            className="hero__cover"
-          />
-        )}
-
-        {/* Mode: Product with typo / slider */}
-        {isProduct && (
-          <>
-            <div className="hero__typo" aria-hidden="true" style={{ display: 'none' }}>
-              <span className="hero__typo-line">STARS</span>
-              <span className="hero__typo-line">SERIES</span>
-            </div>
-            
-            {/* Slider Images */}
-            {HERO_IMAGES.map((src, index) => (
-              <img
-                key={src}
-                src={src}
-                alt={`Hero ${index + 1}`}
-                className={`hero__slider-img ${index === currentSlide ? 'hero__slider-img--active' : ''}`}
-              />
-            ))}
-          </>
-        )}
-
-        {/* Overlay content — always bottom-left */}
-        <div className="hero__overlay">
-          <h1 className="hero__tag">#NEW ARRIVALS</h1>
-          <p className="hero__description">
-            Những chiếc áo với thiết kế và gam màu mang
-            tính biểu tượng, cảm hứng từ bóng đá Anh
-            cuối thập niên 90.
-          </p>
-          <Link to="/product/stripe-series-blue" className="btn btn-primary hero__cta">
-            BÁO GIÁ ĐẶT ĐỘI
-          </Link>
+    <section className="hero" aria-roledescription="carousel" aria-label="Bộ sưu tập Driball">
+      <div className="hero__card">
+        <div className="hero__copy" key={`copy-${activeSlide}`}>
+          <p className="hero__eyebrow">{slide.eyebrow}</p>
+          <h1>{slide.title}</h1>
+          <p className="hero__description">{slide.description}</p>
+          <div className="hero__actions">
+            <Link to={slide.product} className="btn btn-primary">KHÁM PHÁ MẪU ÁO <span>↗</span></Link>
+            <Link to={slide.quote} className="hero__text-link">TÍNH GIÁ NHANH →</Link>
+          </div>
         </div>
+
+        <div className={`hero__visual hero__visual--${slide.kind}`}>
+          {HERO_SLIDES.map((item, index) => (
+            <img key={item.image} src={item.image} alt={index === activeSlide ? item.alt : ''} className={index === activeSlide ? 'is-active' : ''} aria-hidden={index !== activeSlide} />
+          ))}
+          <div className="hero__chip hero__chip--top"><span>0{activeSlide + 1}</span><strong>{slide.label}</strong></div>
+          <div className="hero__chip hero__chip--bottom"><strong>{activeSlide === 1 ? '4' : '320K'}</strong><span>{activeSlide === 1 ? 'PHỐI MÀU' : 'TỪ 10 BỘ'}</span></div>
+        </div>
+
+        <div className="hero__pager">
+          {HERO_SLIDES.map((item, index) => (
+            <button key={item.label} className={index === activeSlide ? 'is-active' : ''} onClick={() => setActiveSlide(index)} aria-label={`Xem slide ${index + 1}: ${item.label}`}><span /></button>
+          ))}
+        </div>
+        <div className="hero__ticker" aria-hidden="true"><span>FOOTBALL</span><span>STYLE</span><span>YOUR TEAM</span><span>DRIBALL</span></div>
       </div>
     </section>
   );
