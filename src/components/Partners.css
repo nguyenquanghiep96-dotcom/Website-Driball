@@ -1,4 +1,4 @@
-.partners { padding: clamp(100px, 12vw, 170px) 0; overflow: hidden; background: #171923; color: #fff; }
+.partners { padding: clamp(100px, 12vw, 170px) 0 0; overflow: hidden; background: #171923; color: #fff; }
 .partners__head { display: flex; justify-content: space-between; align-items: end; gap: 48px; }
 .partners__head .scroll-reveal > div > p, .partners__head .scroll-reveal > p { margin-bottom: 18px; font-size: 11px; font-weight: 850; letter-spacing: .15em; }
 .partners__head h2 { font-family: var(--font-display); font-size: clamp(58px, 8.7vw, 130px); font-weight: 400; line-height: .98; letter-spacing: -.02em; }

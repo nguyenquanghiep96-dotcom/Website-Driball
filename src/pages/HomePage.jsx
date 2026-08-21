@@ -7,6 +7,7 @@ import BentoGrid from '../components/BentoGrid';
 import Partners from '../components/Partners';
 import Footer from '../components/Footer';
 import FooterCta from '../components/FooterCta';
+import MobileQuickQuote from '../components/MobileQuickQuote';
 import { ScrollReveal } from '../hooks/useScrollReveal';
 import './HomePage.css';
 
@@ -38,6 +39,7 @@ export default function HomePage() {
 
         <Partners />
       </main>
+      <MobileQuickQuote />
       <FooterCta />
       <Footer />
     </div>

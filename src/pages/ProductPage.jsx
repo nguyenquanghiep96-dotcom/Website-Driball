@@ -167,69 +167,33 @@ export default function ProductPage() {
             <div className="catalog-hero__orb catalog-hero__orb--two" />
             <img src={product.detailHeroImage || product.heroImage} alt="" />
           </div>
-
-          <div className="catalog-hero__copy">
-            <div className="catalog-kicker">
-              <span>{product.availability === 'in-stock' ? 'Có sẵn' : 'Pre-order'}</span>
-              <span>Catalog 2026</span>
-            </div>
-            <h1>{(product.detailHeroTitle || [product.name]).map((line) => <span key={line}>{line}</span>)}</h1>
-            <p>{product.name}</p>
-            <div className="catalog-hero__price">
-              Từ {formatPrice(product.bulkPrice)} <small>/ bộ · từ {product.bulkMinQty} bộ</small>
-            </div>
-            <div className="catalog-hero__actions">
-              <Link to={`/quote/${product.slug}`} className="catalog-button catalog-button--primary">
-                Tự tính báo giá <span>↗</span>
-              </Link>
-              <a href="#details" className="catalog-button catalog-button--soft">Xem chất liệu ↓</a>
-            </div>
-          </div>
-
-          <div className="catalog-hero__index">DRB / {String(products.indexOf(product) + 1).padStart(2, '0')}</div>
         </section>
-
-        <nav className="catalog-subnav" aria-label="Nội dung sản phẩm">
-          <div className="catalog-shell catalog-subnav__inner">
-            <strong>{product.name}</strong>
-            <div className="catalog-subnav__links">
-              <a href="#details">Chất vải</a>
-              <a href="#specs">Thông số</a>
-              <a href="#printing">Cá nhân hoá</a>
-              <a href="#process">Quy trình</a>
-            </div>
-            <Link to={`/quote/${product.slug}`}>Tính giá</Link>
-          </div>
-        </nav>
 
         <section className="catalog-intro catalog-shell">
           <ScrollReveal>
-            <p className="catalog-eyebrow">THE KIT, CLOSE UP</p>
-            <h2>Cảnh báo:<br />có áo đẹp.</h2>
-          </ScrollReveal>
-          <ScrollReveal delay={2}>
-            <p className="catalog-intro__copy">{product.description}</p>
+            <h2>Mang thiết kế biểu tượng<br />trở lại sân cỏ.</h2>
+            <p className="catalog-intro__series">STRIPE SERIES</p>
+            <p className="catalog-intro__price">Từ {formatPrice(product.bulkPrice)} / bộ · từ {product.bulkMinQty} bộ</p>
           </ScrollReveal>
         </section>
 
         <section className="catalog-close-look" id="details">
           <div className="catalog-shell close-look__topbar">
-            <p>Kéo ngang để soi kỹ từng chi tiết.</p>
+            <div className="colorway-dots" aria-label="Chọn màu áo">
+              {colorways.map((colorway) => (
+                <button
+                  key={colorway.id}
+                  className={colorway.id === activeColorway.id ? 'active' : ''}
+                  onClick={() => selectColorway(colorway)}
+                  aria-label={colorway.name}
+                  aria-pressed={colorway.id === activeColorway.id}
+                  title={colorway.name}
+                >
+                  <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
+                </button>
+              ))}
+            </div>
             <div className="close-look__tools">
-              <div className="colorway-dots" aria-label="Chọn màu áo">
-                {colorways.map((colorway) => (
-                  <button
-                    key={colorway.id}
-                    className={colorway.id === activeColorway.id ? 'active' : ''}
-                    onClick={() => selectColorway(colorway)}
-                    aria-label={colorway.name}
-                    aria-pressed={colorway.id === activeColorway.id}
-                    title={colorway.name}
-                  >
-                    <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
-                  </button>
-                ))}
-              </div>
               <div className="close-look__controls" aria-label="Điều khiển bộ ảnh">
                 <button onClick={() => scrollCloseLook(-1)} aria-label="Ảnh trước">←</button>
                 <button onClick={() => scrollCloseLook(1)} aria-label="Ảnh tiếp theo">→</button>
@@ -250,11 +214,7 @@ export default function ProductPage() {
 
         <section className="print-layouts catalog-shell" id="specs">
           <div className="catalog-section-heading catalog-spec-intro">
-            <div>
-              <p className="catalog-eyebrow">THE SPECS</p>
-              <h2>Thông số<br />kỹ thuật.</h2>
-            </div>
-            <p>Từ chất vải, độ co giãn đến form mặc — những chi tiết giúp Stripe Series thoải mái trong suốt trận đấu.</p>
+            <div><h2>Mô tả sản phẩm.</h2></div>
           </div>
 
           <div className="catalog-spec catalog-spec--embedded">
@@ -278,15 +238,12 @@ export default function ProductPage() {
               </div>
             </div>
             <div className="catalog-spec__facts">
-              <p className="catalog-eyebrow">MATERIAL NOTES</p>
-              <h2>Sờ là mê.<br />Mặc là chiến.</h2>
               <div className="catalog-spec__grid">
-                <div><strong>4 chiều</strong><span>Co giãn</span></div>
-                <div><strong>Quick-dry</strong><span>Thoát ẩm</span></div>
-                <div className="catalog-spec__size"><strong>Sport fit</strong><span>Form áo</span><button onClick={() => setSizeChartOpen(true)}>Xem bảng size ↗</button></div>
-                <div><strong>DTF</strong><span>Công nghệ in</span></div>
+                <div><span>Chất liệu</span><strong>100% Polyester 150gsm</strong></div>
+                <div className="catalog-spec__size"><span>Form áo</span><strong>Regular fit/Sport fit</strong><button onClick={() => setSizeChartOpen(true)}>Xem bảng size ↗</button></div>
+                <div><span>Tính năng</span><strong>Quick-dry</strong></div>
+                <div><span>Hoạt động</span><strong>Bóng đá</strong></div>
               </div>
-              <p className="catalog-spec__note">{product.material}</p>
             </div>
           </div>
 
@@ -315,10 +272,7 @@ export default function ProductPage() {
 
         <section className="catalog-process catalog-shell" id="process">
           <div className="catalog-section-heading">
-            <div>
-              <p className="catalog-eyebrow">FROM PICK TO PITCH</p>
-              <h2>Chốt nhanh.<br />Ra sân ngầu.</h2>
-            </div>
+            <div><h2>Quy trình đặt đội</h2></div>
           </div>
           <div className="process-track">
             {PROCESS.map((step) => (
@@ -337,9 +291,9 @@ export default function ProductPage() {
         <section className="product-close catalog-shell">
           <div className="product-close__copy">
             <p className="catalog-eyebrow">STRIPE SERIES / TEAM PICK</p>
+            <div className="product-close__team-tag"><strong>16</strong><span>ĐỘI ĐÃ LỰA CHỌN<br />STRIPE SERIES</span></div>
             <h2>Chốt mẫu này?</h2>
             <p>Chọn màu đội thích, thêm các lựa chọn in ấn và xem ngay mức giá theo số lượng.</p>
-            <div className="product-close__team-tag"><strong>16</strong><span>ĐỘI ĐÃ LỰA CHỌN<br />STRIPE SERIES</span></div>
             <div className="product-close__colors colorway-dots" aria-label="Chọn màu áo để tính giá">
               {colorways.map((colorway) => (
                 <button

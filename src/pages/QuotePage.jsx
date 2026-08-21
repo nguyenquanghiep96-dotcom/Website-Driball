@@ -198,10 +198,11 @@ export default function QuotePage() {
         {selectedUpgrades.map((option) => (
           <div key={option.id}><span>{option.name}</span><strong>+{formatPrice(option.price)}</strong></div>
         ))}
+        <div className="quote-summary__unit-total"><span>Chi phí cả bộ</span><strong>{formatPrice(pricing.pricePerUnit)}/bộ</strong></div>
       </div>
 
       <div className="quote-summary__total">
-        <span>Tạm tính</span>
+        <span>Tạm tính tổng đơn</span>
         <strong className={priceAnimating ? 'is-updating' : ''}>{formatPrice(pricing.totalPrice)}</strong>
         <small>{formatPrice(pricing.pricePerUnit)} / bộ</small>
       </div>
@@ -220,26 +221,9 @@ export default function QuotePage() {
     <>
       <Navbar />
       <main className="quote-page">
-        <header className="quote-cover">
-          <div>
-            <span>DRIBALL KIT CONFIGURATOR</span>
-            <h1>Tự phối.<br />Tự tính.</h1>
-          </div>
-          <p>Chọn mẫu, số lượng và cách in. Giá thay đổi ngay khi bạn chọn.</p>
-          <Link to={`/product/${product.slug}`}>← Xem lại chi tiết mẫu</Link>
-        </header>
-
         <div className="quote-workspace">
           <div className="quote-builder">
             <section className="quote-block quote-block--products">
-              <div className="quote-block__heading">
-                <span>01</span>
-                <div>
-                  <p>CHỌN MẪU</p>
-                  <h2>{product.name}</h2>
-                </div>
-              </div>
-
               <div className="quote-product-picker">
                 <article className="quote-product-current">
                   <div className="quote-product-current__visual"><img src={currentImage} alt={product.name} /></div>
@@ -256,17 +240,8 @@ export default function QuotePage() {
                   </div>
                 </article>
               </div>
-            </section>
 
-            <section className="quote-block quote-block--quantity">
-              <div className="quote-block__heading">
-                <span>02</span>
-                <div>
-                  <p>SỐ LƯỢNG</p>
-                  <h2>Càng đông, giá càng tốt.</h2>
-                </div>
-              </div>
-
+              <section className="quote-config-card quote-block--quantity" aria-label="Số lượng">
               <div className="quote-quantity-control">
                 <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Giảm số lượng">−</button>
                 <label>
@@ -301,17 +276,9 @@ export default function QuotePage() {
                   </button>
                 ))}
               </div>
-            </section>
+              </section>
 
-            <section className="quote-block quote-block--print">
-              <div className="quote-block__heading">
-                <span>03</span>
-                <div>
-                  <p>IN ẤN</p>
-                  <h2>Đặt dấu ấn của đội.</h2>
-                </div>
-              </div>
-
+              <section className="quote-config-card quote-block--print" aria-label="In ấn">
               <div className="quote-option-grid">
                 {PRINT_OPTIONS.map((option, index) => (
                   <button
@@ -328,17 +295,9 @@ export default function QuotePage() {
                   </button>
                 ))}
               </div>
-            </section>
+              </section>
 
-            <section className="quote-block quote-block--upgrade">
-              <div className="quote-block__heading">
-                <span>04</span>
-                <div>
-                  <p>NÂNG CẤP</p>
-                  <h2>Thêm nếu bạn muốn.</h2>
-                </div>
-              </div>
-
+              <section className="quote-config-card quote-block--upgrade" aria-label="Nâng cấp">
               <div className="quote-upgrades">
                 {UPGRADE_OPTIONS.map((option) => {
                   const selected = selectedUpgradeOptions.includes(option.id);
@@ -351,6 +310,7 @@ export default function QuotePage() {
                   );
                 })}
               </div>
+              </section>
             </section>
           </div>
 

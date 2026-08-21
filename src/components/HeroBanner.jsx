@@ -5,7 +5,7 @@ import './HeroBanner.css';
 const HERO_SLIDES = [
   {
     eyebrow: 'DRIBALL / NEW SEASON 2026',
-    title: <>DRIBALL<br /><em>TRONG TỦ ĐỒ.</em></>,
+    title: <>DRIBALL <em>TRONG TỦ ĐỒ.</em></>,
     description: 'Mẫu áo có chất sân cỏ, nhưng không chịu đứng yên trong sân.',
     image: '/images/products/stripe-blue/details/lifestyle.jpg',
     alt: 'Hai người mẫu mặc áo Driball Stripe Series',
@@ -16,7 +16,7 @@ const HERO_SLIDES = [
   },
   {
     eyebrow: 'RAGLAN MOTION / FIRST LOOK',
-    title: <>ÁO ĐẸP.<br /><em>KÈO THÊM NHIỆT.</em></>,
+    title: <>ÁO ĐẸP. <em>KÈO THÊM NHIỆT.</em></>,
     description: 'Vai raglan chuyển động linh hoạt, đồ hoạ đủ nổi để nhận ra đội bạn từ xa.',
     image: '/images/products/raglan/blue.jpg',
     alt: 'Áo Driball Raglan Motion màu navy',
@@ -27,7 +27,7 @@ const HERO_SLIDES = [
   },
   {
     eyebrow: 'FROM THE PITCH TO THE STREET',
-    title: <>RA SÂN.<br /><em>RA CHẤT.</em></>,
+    title: <>RA SÂN. <em>RA CHẤT.</em></>,
     description: 'Một form áo thể thao đủ sạch để thi đấu, đủ cá tính để mặc tiếp sau trận.',
     image: '/images/hero-slides/red-white-editorial.jpg',
     alt: 'Người mẫu Driball với áo bóng đá đỏ và trắng',
@@ -55,8 +55,7 @@ export default function HeroBanner() {
           <h1>{slide.title}</h1>
           <p className="hero__description">{slide.description}</p>
           <div className="hero__actions">
-            <Link to={slide.product} className="btn btn-primary">KHÁM PHÁ MẪU ÁO <span>↗</span></Link>
-            <Link to={slide.quote} className="hero__text-link">TÍNH GIÁ NHANH →</Link>
+            <Link to={slide.product} className="btn btn-primary">KHÁM PHÁ NGAY <span>↗</span></Link>
           </div>
         </div>
 
@@ -68,11 +67,6 @@ export default function HeroBanner() {
           <div className="hero__chip hero__chip--bottom"><strong>{activeSlide === 1 ? '4' : '320K'}</strong><span>{activeSlide === 1 ? 'PHỐI MÀU' : 'TỪ 10 BỘ'}</span></div>
         </div>
 
-        <div className="hero__pager">
-          {HERO_SLIDES.map((item, index) => (
-            <button key={item.label} className={index === activeSlide ? 'is-active' : ''} onClick={() => setActiveSlide(index)} aria-label={`Xem slide ${index + 1}: ${item.label}`}><span /></button>
-          ))}
-        </div>
         <div className="hero__ticker" aria-hidden="true"><span>FOOTBALL</span><span>STYLE</span><span>YOUR TEAM</span><span>DRIBALL</span></div>
       </div>
     </section>

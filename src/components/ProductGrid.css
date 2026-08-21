@@ -48,8 +48,8 @@
 .product-grid__color-filters button:hover { transform: translateY(-2px); }
 .product-grid__color-filters button span { width: 26px; height: 26px; border: 1px solid rgba(0,0,0,.12); border-radius: 50%; }
 .product-grid__color-filters button.is-active { border: 1px solid #171923; box-shadow: none; }
-.product-grid__mobile-filters, .product-grid__mobile-view-all { display: none; }
-.product-grid__quick-quote { display: none; }
+.product-grid__filters { display: flex; justify-content: center; margin-top: 25px; }
+.product-grid__mobile-view-all { display: none; }
 
 /* ── Category tabs ── */
 .product-grid__tabs {
@@ -127,6 +127,7 @@
 .product-grid__scroll::-webkit-scrollbar {
   display: none;
 }
+.product-grid__scroll-end { flex: 0 0 1px; height: 1px; }
 
 /* Card sizing: ~5 cards visible on desktop within container width */
 .product-grid__scroll .product-card {
@@ -150,12 +151,12 @@
   }
 
   .product-grid__header-actions { display: none; }
-  .product-grid__mobile-filters { display: block; margin-bottom: 22px; }
   .product-grid__mobile-view-all { display: flex; justify-content: center; margin-top: 20px; }
-  .product-grid__mobile-filters .product-grid__color-filters { gap: 7px; overflow-x: auto; padding: 3px; scrollbar-width: none; }
-  .product-grid__mobile-filters .product-grid__color-filters::-webkit-scrollbar { display: none; }
-  .product-grid__mobile-filters .product-grid__color-filters button { flex: 0 0 40px; width: 40px; height: 40px; }
-  .product-grid__mobile-filters .product-grid__color-filters button span { width: 26px; height: 26px; }
+  .product-grid__filters { margin-top: 25px; }
+  .product-grid__filters .product-grid__color-filters { gap: 7px; overflow-x: auto; padding: 3px; scrollbar-width: none; }
+  .product-grid__filters .product-grid__color-filters::-webkit-scrollbar { display: none; }
+  .product-grid__filters .product-grid__color-filters button { flex: 0 0 40px; width: 40px; height: 40px; }
+  .product-grid__filters .product-grid__color-filters button span { width: 26px; height: 26px; }
 
   .product-grid__header .heading-xl {
     max-width: 8em;
@@ -177,18 +178,6 @@
     height: 40px;
   }
 
-  .product-grid__quick-quote {
-    position: fixed;
-    z-index: 30;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    min-height: 58px;
-    border-radius: 0;
-  }
 }
 
 @media (max-width: 480px) {
@@ -200,9 +189,8 @@
     padding-bottom: 18px;
   }
 
-  /* 1 card fully visible + 1/3 of next card peeking */
   .product-grid__scroll .product-card {
-    flex: 0 0 min(76vw, 310px);
+    flex: 0 0 min(72vw, 310px);
     min-width: 0;
   }
 }

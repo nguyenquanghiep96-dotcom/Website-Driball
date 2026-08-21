@@ -35,8 +35,8 @@ export default function ProductGrid() {
   const [activeCategory, setActiveCategory] = useState('new');
   const [activeColor, setActiveColor] = useState(null);
   const scrollRef = useRef(null);
-  const sectionRef = useRef(null);
-  const [showQuickQuote, setShowQuickQuote] = useState(false);
+  const endRef = useRef(null);
+  const [isLastCardVisible, setIsLastCardVisible] = useState(false);
 
   const availableCategories = CATEGORIES.filter((category) =>
     products.some((product) => product.category === category.id)
@@ -48,21 +48,14 @@ export default function ProductGrid() {
   }, [activeCategory]);
 
   useEffect(() => {
-    const updateQuickQuote = () => {
-      if (!window.matchMedia('(max-width: 768px)').matches || !sectionRef.current) {
-        setShowQuickQuote(false);
-        return;
-      }
-      setShowQuickQuote(sectionRef.current.getBoundingClientRect().bottom < window.innerHeight);
-    };
-    updateQuickQuote();
-    window.addEventListener('scroll', updateQuickQuote, { passive: true });
-    window.addEventListener('resize', updateQuickQuote);
-    return () => {
-      window.removeEventListener('scroll', updateQuickQuote);
-      window.removeEventListener('resize', updateQuickQuote);
-    };
-  }, []);
+    if (!scrollRef.current || !endRef.current) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsLastCardVisible(entry.isIntersecting),
+      { root: scrollRef.current, threshold: 0.9 }
+    );
+    observer.observe(endRef.current);
+    return () => observer.disconnect();
+  }, [activeCategory]);
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -75,14 +68,13 @@ export default function ProductGrid() {
   };
 
   return (
-    <section className="product-grid section" id="products" ref={sectionRef}>
+    <section className="product-grid section" id="products">
       {/* Header + Tabs: inside container for alignment */}
       <div className="container">
         <ScrollReveal>
           <div className="product-grid__header">
             <h2 className="heading-xl">NHỮNG MẪU ĐẶT ĐỘI</h2>
             <div className="product-grid__header-actions">
-              <ColorFilterDots activeColor={activeColor} onChange={setActiveColor} />
               <Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span>↗</span></Link>
               <div className="product-grid__nav-arrows">
                 <button className="product-grid__arrow" onClick={() => scroll('prev')} aria-label="Mẫu trước">
@@ -95,10 +87,6 @@ export default function ProductGrid() {
             </div>
           </div>
         </ScrollReveal>
-
-        <div className="product-grid__mobile-filters">
-          <ColorFilterDots activeColor={activeColor} onChange={setActiveColor} />
-        </div>
 
         {availableCategories.length > 1 && (
           <ScrollReveal delay={1}>
@@ -115,14 +103,18 @@ export default function ProductGrid() {
             </div>
           </ScrollReveal>
         )}
+
       </div>
 
       {/* Cards: full-viewport scroll container */}
       <div className="product-grid__scroll" ref={scrollRef}>
         {filtered.map(product => <ProductCard key={product.id} product={product} globalColor={activeColor} />)}
+        <span className="product-grid__scroll-end" ref={endRef} aria-hidden="true" />
       </div>
-      <div className="product-grid__mobile-view-all container"><Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span>↗</span></Link></div>
-      {showQuickQuote && <Link to="/quote/stripe-series-blue" className="product-grid__quick-quote btn btn-primary">TÍNH GIÁ NHANH <span>↗</span></Link>}
+      <div className="product-grid__filters container">
+        <ColorFilterDots activeColor={activeColor} onChange={setActiveColor} />
+      </div>
+      {isLastCardVisible && <div className="product-grid__mobile-view-all container"><Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span>↗</span></Link></div>}
     </section>
   );
 }

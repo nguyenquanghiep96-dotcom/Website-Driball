@@ -68,7 +68,7 @@
 
 .quote-workspace {
   width: min(100% - 48px, 1440px);
-  margin-inline: auto;
+  margin: 32px auto 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 400px;
   gap: 20px;
@@ -77,7 +77,8 @@
 
 .quote-builder { display: grid; gap: 20px; }
 .quote-block { padding: clamp(28px, 4vw, 54px); border-radius: 34px; background: #fff; overflow: hidden; }
-.quote-block--products { background: #dfe2ff; }
+.quote-block--products { display: grid; gap: 20px; background: #fff; }
+.quote-config-card { padding: clamp(28px, 4vw, 54px); overflow: hidden; border-radius: 28px; }
 .quote-block--quantity { background: #11131b; color: #fff; }
 .quote-block--print { background: #ff5c35; }
 .quote-block--upgrade { background: #fbff67; }
@@ -113,9 +114,9 @@
 }
 
 .quote-product-picker::-webkit-scrollbar { display: none; }
-.quote-product-current { flex: 0 0 100%; min-width: 700px; padding: 16px; display: grid; grid-template-columns: minmax(280px, .9fr) 1.1fr; gap: 32px; scroll-snap-align: start; border-radius: 28px; background: rgba(255,255,255,.78); }
-.quote-product-current__visual { min-height: 360px; display: grid; place-items: center; overflow: hidden; border-radius: 20px; background: #f7f7f4; }
-.quote-product-current__visual img { width: 100%; height: 100%; max-height: 390px; object-fit: contain; }
+.quote-product-current { flex: 0 0 100%; min-width: 0; padding: 14px; display: grid; grid-template-columns: minmax(190px, 260px) 1fr; gap: 28px; scroll-snap-align: start; border: 1px solid #e5e5df; border-radius: 24px; background: #f7f7f4; }
+.quote-product-current__visual { min-height: 250px; display: grid; place-items: center; overflow: hidden; border-radius: 18px; background: #fff; }
+.quote-product-current__visual img { width: 100%; height: 100%; max-height: 270px; object-fit: contain; }
 .quote-product-current__copy { padding: 24px 22px 20px 0; display: flex; flex-direction: column; justify-content: center; }
 .quote-product-current__copy > span { color: var(--color-blue); font-size: 10px; font-weight: 850; letter-spacing: .13em; }
 .quote-product-current__copy h3 { margin-top: 9px; font-size: clamp(30px, 4vw, 52px); line-height: 1; }
@@ -186,6 +187,8 @@
 .quote-summary__lines > div { display: flex; justify-content: space-between; gap: 16px; font-size: 13px; }
 .quote-summary__lines span { color: #74747a; }
 .quote-summary__lines strong { white-space: nowrap; }
+.quote-summary__lines .quote-summary__unit-total { margin-top: 4px; padding-top: 12px; border-top: 1px dashed #d7d8d3; color: #171923; font-weight: 800; }
+.quote-summary__lines .quote-summary__unit-total span { color: #171923; }
 
 .quote-summary__total { padding: 24px 0; display: grid; grid-template-columns: 1fr auto; align-items: baseline; }
 .quote-summary__total span { font-weight: 750; }
@@ -226,19 +229,24 @@
 @media (max-width: 720px) {
   .quote-page { padding-top: var(--nav-height); }
   .quote-cover, .quote-workspace { width: min(100% - 24px, 1440px); }
+  .quote-workspace { margin-top: 12px; }
   .quote-cover { min-height: 420px; margin-top: 12px; padding: 30px 24px; grid-template-columns: 1fr; align-content: end; gap: 22px; border-radius: 28px; }
   .quote-cover > p { justify-self: start; max-width: 300px; font-size: 17px; }
   .quote-cover > a { top: 16px; right: 16px; }
   .quote-cover::before { width: 270px; right: -110px; top: -130px; }
   .quote-cover::after { display: none; }
   .quote-builder { gap: 12px; }
-  .quote-block { padding: 28px 20px 32px; border-radius: 28px; }
+  .quote-block { padding: 20px 12px 24px; border-radius: 28px; }
+  .quote-config-card { padding: 28px 20px 32px; border-radius: 24px; }
   .quote-block__heading { margin-bottom: 28px; }
   .quote-block__heading > span { width: 36px; height: 36px; }
-  .quote-product-picker { margin-right: -20px; }
-  .quote-product-current { flex: 0 0 calc(100vw - 64px); min-width: 0; grid-template-columns: 1fr; gap: 16px; }
-  .quote-product-current__visual { min-height: 300px; }
+  .quote-product-picker { margin-right: 0; }
+  .quote-product-current { flex: 0 0 100%; min-width: 0; grid-template-columns: 120px 1fr; gap: 14px; }
+  .quote-product-current__visual { min-height: 160px; }
+  .quote-product-current__visual img { max-height: 170px; }
   .quote-product-current__copy { padding: 8px 4px 5px; }
+  .quote-product-current__copy h3 { font-size: 24px; }
+  .quote-product-current__copy > p { font-size: 12px; }
   .quote-product-current__copy label { margin-top: 22px; }
   .quote-quantity-control { grid-template-columns: 52px minmax(130px, 1fr) 52px; gap: 8px; padding-top: 8px; }
   .quote-quantity-control > button { width: 52px; height: 52px; }

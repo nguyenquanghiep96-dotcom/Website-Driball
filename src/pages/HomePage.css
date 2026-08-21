@@ -5,12 +5,12 @@
 }
 
 .home-page main {
-  padding-bottom: var(--space-section);
+  padding-bottom: 0;
 }
 
 @media (max-width: 640px) {
   .home-page main {
-    padding-bottom: 48px;
+    padding-bottom: 0;
   }
 
   .home-page .section:not(.bento) {
