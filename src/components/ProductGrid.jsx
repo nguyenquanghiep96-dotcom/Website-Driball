@@ -16,7 +16,7 @@ const COLOR_FILTERS = [
 
 function ColorFilterDots({ activeColor, onChange, className = '' }) {
   return (
-    <div className={`product-grid__color-filters ${className}`} aria-label="Lọc màu sản phẩm">
+    <div className={`product-grid__color-filters liquid-color-nav ${className}`} aria-label="Lọc màu sản phẩm">
       {COLOR_FILTERS.map((color) => (
         <button
           key={color.id}

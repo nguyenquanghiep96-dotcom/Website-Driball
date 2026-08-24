@@ -97,10 +97,17 @@
   cursor: pointer;
   padding: 0;
   z-index: 101;
+  flex-shrink: 0;
+  color: var(--color-dark);
+  -webkit-appearance: none;
+  appearance: none;
+  touch-action: manipulation;
 }
 
 .navbar__hamburger span {
   display: block;
+  width: 100%;
+  flex: 0 0 2px;
   height: 2px;
   background: var(--color-dark);
   border-radius: 2px;

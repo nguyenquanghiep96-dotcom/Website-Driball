@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import FooterCta from '../components/FooterCta';
 import ProductCard from '../components/ProductCard';
 import { products } from '../data/products';
 import './CatalogPage.css';
@@ -27,6 +26,7 @@ export default function CatalogPage() {
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [filterOpen, setFilterOpen] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('standard');
   const [showStickyColors, setShowStickyColors] = useState(false);
   const gridRef = useRef(null);
 
@@ -47,7 +47,7 @@ export default function CatalogPage() {
         return;
       }
       const rect = gridRef.current.getBoundingClientRect();
-      setShowStickyColors(rect.top <= 84 && rect.bottom > 84);
+      setShowStickyColors(window.scrollY > 4 && rect.bottom > 84);
     };
     updateStickyColors();
     window.addEventListener('scroll', updateStickyColors, { passive: true });
@@ -73,29 +73,32 @@ export default function CatalogPage() {
             </button>
             <div className={`catalog-listing__badges ${filterOpen ? 'is-open' : ''}`} aria-label="Lọc tình trạng sản phẩm">
               {AVAILABILITY_FILTERS.map(([id, label]) => <button key={id} className={availabilityFilter === id ? 'is-active' : ''} onClick={() => setAvailabilityFilter(id)}>{label}</button>)}
-            </div>
-            <div className={`catalog-listing__color-control ${colorOpen ? 'is-open' : ''}`}>
-              <button className="catalog-listing__color-toggle" onClick={() => setColorOpen((value) => !value)} aria-expanded={colorOpen}>
-                COLOR <span className="catalog-listing__rainbow-dot" />
-              </button>
-              <div className="catalog-listing__colors" aria-label="Lọc màu sản phẩm">
-                {COLOR_FILTERS.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => setActiveColorId(color.id)} aria-label={color.label} aria-pressed={activeColorId === color.id} title={color.label}><span style={{ background: color.hex }} /></button>)}
+              <div className={`catalog-listing__color-control ${colorOpen ? 'is-open' : ''}`}>
+                <button className="catalog-listing__color-toggle" onClick={() => setColorOpen((value) => !value)} aria-expanded={colorOpen}>
+                  COLOR <span className="catalog-listing__rainbow-dot" />
+                </button>
+                <div className="catalog-listing__colors" aria-label="Lọc màu sản phẩm">
+                  {COLOR_FILTERS.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => setActiveColorId(color.id)} aria-label={color.label} aria-pressed={activeColorId === color.id} title={color.label}><span style={{ background: color.hex }} /></button>)}
+                </div>
               </div>
+            </div>
+            <div className="catalog-listing__view-toggle" aria-label="Chế độ hiển thị sản phẩm">
+              <button className={viewMode === 'standard' ? 'is-active' : ''} onClick={() => setViewMode('standard')} aria-pressed={viewMode === 'standard'}>VIEW 1</button>
+              <button className={viewMode === 'mixed' ? 'is-active' : ''} onClick={() => setViewMode('mixed')} aria-pressed={viewMode === 'mixed'}>VIEW 2</button>
             </div>
             <span>{visibleProducts.length} MẪU ÁO</span>
           </div>
           <div className="catalog-listing__grid" ref={gridRef}>
-            {visibleProducts.map((product) => <ProductCard key={product.id} product={product} globalColor={activeColorId === 'all' ? null : activeColor} />)}
+            {visibleProducts.map((product, index) => <ProductCard key={product.id} product={product} globalColor={activeColorId === 'all' ? null : activeColor} reverseImages={viewMode === 'mixed' && index % 2 === 1} />)}
           </div>
         </section>
       </main>
       {showStickyColors && (
-        <div className="catalog-listing__sticky-colors" aria-label="Đổi nhanh màu sản phẩm">
+        <div className="catalog-listing__sticky-colors liquid-color-nav" aria-label="Đổi nhanh màu sản phẩm">
           <span className="catalog-listing__sticky-label">Màu:</span>
           {COLOR_FILTERS.filter((color) => color.id !== 'all').slice(0, 6).map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => setActiveColorId(color.id)} aria-label={color.label} aria-pressed={activeColorId === color.id}><span style={{ background: color.hex }} /></button>)}
         </div>
       )}
-      <FooterCta />
       <Footer />
     </>
   );

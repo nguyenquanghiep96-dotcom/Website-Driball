@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../data/products';
 import './ProductCard.css';
@@ -9,25 +9,18 @@ const colorMatchesFilter = (color, filter) => {
   return filter.matches.some((term) => name.includes(term));
 };
 
-export default function ProductCard({ product, globalColor }) {
+export default function ProductCard({ product, globalColor, reverseImages = false }) {
   const defaultColor = useMemo(
     () => product.colors?.find((color) => color.image === product.heroImage) || product.colors?.[0],
     [product]
   );
-  const [activeColorName, setActiveColorName] = useState(defaultColor?.name);
-
-  useEffect(() => {
-    if (!globalColor) {
-      setActiveColorName(defaultColor?.name);
-      return;
-    }
-    const matchingColor = product.colors?.find((color) => colorMatchesFilter(color, globalColor));
-    if (matchingColor) setActiveColorName(matchingColor.name);
-  }, [defaultColor?.name, globalColor, product.colors]);
-
-  const activeColor = product.colors?.find((color) => color.name === activeColorName) || defaultColor;
-  const primaryImage = activeColor?.image || product.heroImage;
-  const hoverImage = activeColor?.hoverImage || product.cardHoverImage || product.modelImage || primaryImage;
+  const activeColor = globalColor
+    ? product.colors?.find((color) => colorMatchesFilter(color, globalColor)) || defaultColor
+    : defaultColor;
+  const defaultPrimaryImage = activeColor?.image || product.heroImage;
+  const defaultHoverImage = activeColor?.hoverImage || product.cardHoverImage || product.modelImage || defaultPrimaryImage;
+  const primaryImage = reverseImages ? defaultHoverImage : defaultPrimaryImage;
+  const hoverImage = reverseImages ? defaultPrimaryImage : defaultHoverImage;
   const isInStock = product.availability === 'in-stock';
 
   return (
@@ -50,20 +43,6 @@ export default function ProductCard({ product, globalColor }) {
           </p>
         </div>
       </Link>
-      {product.colors?.length > 1 && (
-        <div className="product-card__colors" aria-label={`Chọn màu ${product.name}`}>
-          {product.colors.map((color) => (
-            <button
-              key={color.name}
-              className={color.name === activeColor?.name ? 'is-active' : ''}
-              onClick={() => setActiveColorName(color.name)}
-              aria-label={color.name}
-              aria-pressed={color.name === activeColor?.name}
-              title={color.name}
-            ><span style={{ background: color.hex }} /></button>
-          ))}
-        </div>
-      )}
     </article>
   );
 }

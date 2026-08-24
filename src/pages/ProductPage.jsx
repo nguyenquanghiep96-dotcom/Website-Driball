@@ -163,40 +163,26 @@ export default function ProductPage() {
       <main className="catalog-product">
         <section className="catalog-hero">
           <div className="catalog-hero__visual" aria-hidden="true">
-            <div className="catalog-hero__orb catalog-hero__orb--one" />
-            <div className="catalog-hero__orb catalog-hero__orb--two" />
-            <img src={product.detailHeroImage || product.heroImage} alt="" />
+            <div className="catalog-hero__image-frame">
+              <img src={product.detailHeroImage || product.heroImage} alt="" />
+            </div>
           </div>
         </section>
 
         <section className="catalog-intro catalog-shell">
           <ScrollReveal>
-            <h2>Mang thiết kế biểu tượng<br />trở lại sân cỏ.</h2>
             <p className="catalog-intro__series">STRIPE SERIES</p>
+            <h2>Mang thiết kế biểu tượng<br />trở lại sân cỏ.</h2>
             <p className="catalog-intro__price">Từ {formatPrice(product.bulkPrice)} / bộ · từ {product.bulkMinQty} bộ</p>
           </ScrollReveal>
         </section>
 
         <section className="catalog-close-look" id="details">
           <div className="catalog-shell close-look__topbar">
-            <div className="colorway-dots" aria-label="Chọn màu áo">
-              {colorways.map((colorway) => (
-                <button
-                  key={colorway.id}
-                  className={colorway.id === activeColorway.id ? 'active' : ''}
-                  onClick={() => selectColorway(colorway)}
-                  aria-label={colorway.name}
-                  aria-pressed={colorway.id === activeColorway.id}
-                  title={colorway.name}
-                >
-                  <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
-                </button>
-              ))}
-            </div>
             <div className="close-look__tools">
               <div className="close-look__controls" aria-label="Điều khiển bộ ảnh">
-                <button onClick={() => scrollCloseLook(-1)} aria-label="Ảnh trước">←</button>
-                <button onClick={() => scrollCloseLook(1)} aria-label="Ảnh tiếp theo">→</button>
+                <button onClick={() => scrollCloseLook(-1)} aria-label="Ảnh trước"><img src="/icons/Frame 21.svg" alt="" /></button>
+                <button onClick={() => scrollCloseLook(1)} aria-label="Ảnh tiếp theo"><img src="/icons/Frame 21-1.svg" alt="" /></button>
               </div>
             </div>
           </div>
@@ -208,6 +194,20 @@ export default function ProductPage() {
                   <span>{String(index + 1).padStart(2, '0')}</span>
                 </figure>
               </article>
+            ))}
+          </div>
+          <div className="colorway-dots close-look__colorways liquid-color-nav" aria-label="Chọn màu áo">
+            {colorways.map((colorway) => (
+              <button
+                key={colorway.id}
+                className={colorway.id === activeColorway.id ? 'active' : ''}
+                onClick={() => selectColorway(colorway)}
+                aria-label={colorway.name}
+                aria-pressed={colorway.id === activeColorway.id}
+                title={colorway.name}
+              >
+                <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
+              </button>
             ))}
           </div>
         </section>
