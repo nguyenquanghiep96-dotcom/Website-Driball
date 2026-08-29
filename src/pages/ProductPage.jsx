@@ -36,7 +36,7 @@ const CUSTOMIZATION_CARDS = [
     id: 'print-packages',
     eyebrow: 'CHỌN MỨC HOÀN THIỆN',
     title: 'Các gói in ấn',
-    subtitle: '03 gói từ cơ bản đến nhận diện đầy đủ',
+    subtitle: '02 phương pháp hoàn thiện theo nhu cầu đội',
     detail: 'Chọn lượng thông tin vừa đủ với nhu cầu của đội. Driball sẽ căn tỉ lệ từng vị trí theo size áo và gửi mockup trước khi sản xuất.',
     packages: [
       { name: 'Gói cơ bản', text: 'Logo đội, tên và số áo.' },
@@ -74,6 +74,36 @@ const CUSTOMIZATION_CARDS = [
   },
 ];
 
+const PRODUCT_FEATURES = [
+  { icon: 'laundry', label: 'Chất liệu', value: '100% Polyester 150gsm' },
+  { icon: 'directions_run', label: 'Form áo', value: 'Regular fit / Sport fit', sizeGuide: true },
+  { icon: 'cool_to_dry', label: 'Tính năng', value: 'Quick-dry' },
+  { icon: 'sports_and_outdoors', label: 'Hoạt động', value: 'Bóng đá' },
+];
+
+const PRINTING_METHODS = [
+  {
+    id: 'sublimation',
+    tab: 'In thăng hoa',
+    title: 'Gói in thăng hoa (Heat Transfer)',
+    description: 'In trực tiếp vào áo để màu và hình ảnh thấm sâu vào sợi vải. Bề mặt vẫn nhẹ, sắc nét, không bong tróc và giữ màu ổn định theo thời gian.',
+    price: 'Gói 1–5 vị trí cơ bản: Miễn phí khi đặt theo đội',
+    extra: 'Thêm vị trí khác: +10.000đ/vị trí',
+    upgrade: 'Nâng cấp logo 3D DTF cao cấp: +15.000đ/logo',
+    image: '/images/products/stripe-blue/details/print-layout-01.jpg',
+  },
+  {
+    id: 'dtf',
+    tab: 'PET / DTF',
+    title: 'In PET chuyển nhiệt (DTF) / Decal',
+    description: 'Các chi tiết được hoàn thiện bằng một màng decal mỏng, bề mặt mịn và phù hợp với vận động thể thao. Hình in sắc nét, chuyên nghiệp, tạo cảm giác cao cấp cho toàn bộ áo đấu.',
+    price: 'Gói 1–5 vị trí cơ bản: +35.000đ/bộ',
+    extra: 'Thêm vị trí khác: +10.000đ/vị trí',
+    upgrade: 'Nâng cấp logo 3D DTF cao cấp: +15.000đ/logo',
+    image: '/images/products/stripe-blue/details/print-layout-02.jpg',
+  },
+];
+
 const PROCESS = [
   { number: '01', title: 'Chọn mẫu', text: 'Bạn chọn mẫu ưng ý, tính giá và gửi cho Driball.', image: '/images/products/stripe-blue.png' },
   { number: '02', title: 'Demo', text: 'Driball liên hệ và gửi bạn demo.', image: '/images/products/stripe-blue/details/print-layout-01.jpg' },
@@ -85,10 +115,15 @@ export default function ProductPage() {
   const { slug } = useParams();
   const product = products.find((item) => item.slug === slug);
   const closeLookRef = useRef(null);
+  const printingModalRef = useRef(null);
+  const mobileGalleryRef = useRef(null);
+  const mobileGalleryOverlayRef = useRef(null);
+  const galleryGestureRef = useRef({ startX: 0, startY: 0, deltaY: 0, vertical: false, active: false });
   const [selectedColorId, setSelectedColorId] = useState(null);
-  const [materialIndex, setMaterialIndex] = useState(0);
   const [activePrintPackage, setActivePrintPackage] = useState(null);
+  const [activePrintingTab, setActivePrintingTab] = useState('sublimation');
   const [isSizeChartOpen, setSizeChartOpen] = useState(false);
+  const [mobileGalleryIndex, setMobileGalleryIndex] = useState(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -101,15 +136,15 @@ export default function ProductPage() {
 
   useEffect(() => {
     setSelectedColorId(null);
-    setMaterialIndex(0);
   }, [slug]);
 
   useEffect(() => {
-    if (!activePrintPackage && !isSizeChartOpen) return undefined;
+    if (!activePrintPackage && !isSizeChartOpen && mobileGalleryIndex === null) return undefined;
     const handleEscape = (event) => {
       if (event.key !== 'Escape') return;
       setActivePrintPackage(null);
       setSizeChartOpen(false);
+      setMobileGalleryIndex(null);
     };
     document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleEscape);
@@ -117,7 +152,33 @@ export default function ProductPage() {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleEscape);
     };
-  }, [activePrintPackage, isSizeChartOpen]);
+  }, [activePrintPackage, isSizeChartOpen, mobileGalleryIndex]);
+
+  useEffect(() => {
+    if (mobileGalleryIndex === null) {
+      if (mobileGalleryRef.current) {
+        mobileGalleryRef.current.style.transform = '';
+        mobileGalleryRef.current.style.transition = '';
+      }
+      if (mobileGalleryOverlayRef.current) mobileGalleryOverlayRef.current.style.backgroundColor = '';
+      return;
+    }
+    if (!mobileGalleryRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      const track = mobileGalleryRef.current;
+      track.scrollTo({ left: track.clientWidth * mobileGalleryIndex, behavior: 'auto' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [mobileGalleryIndex]);
+
+  useEffect(() => {
+    if (!activePrintPackage || !printingModalRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = printingModalRef.current?.querySelector(`[data-print-section="${activePrintPackage.id}"]`);
+      if (target) printingModalRef.current.scrollTop = target.offsetTop;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activePrintPackage]);
 
   if (!product) {
     return (
@@ -143,9 +204,6 @@ export default function ProductPage() {
   const defaultColorway = colorways.find((colorway) => colorway.default) || colorways[0];
   const activeColorway = colorways.find((colorway) => colorway.id === selectedColorId) || defaultColorway;
   const detailStories = activeColorway.images;
-  const materialImages = product.materialImages || [
-    { image: product.frontImage || product.heroImage, title: `${product.name} mặt trước`, fit: 'contain' },
-  ];
   const scrollCloseLook = (direction) => {
     closeLookRef.current?.scrollBy({
       left: direction * Math.min(window.innerWidth * 0.72, 900),
@@ -155,6 +213,42 @@ export default function ProductPage() {
   const selectColorway = (colorway) => {
     setSelectedColorId(colorway.id);
     closeLookRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
+  };
+  const openMobileGallery = (index) => {
+    if (!window.matchMedia('(max-width: 640px)').matches) return;
+    setMobileGalleryIndex(index);
+  };
+  const handleGalleryPointerStart = (event) => {
+    galleryGestureRef.current = { startX: event.clientX, startY: event.clientY, deltaY: 0, vertical: false, active: true };
+    if (mobileGalleryRef.current) mobileGalleryRef.current.style.transition = 'none';
+  };
+  const handleGalleryPointerMove = (event) => {
+    const gesture = galleryGestureRef.current;
+    if (!gesture.active) return;
+    const deltaX = event.clientX - gesture.startX;
+    const deltaY = Math.max(0, event.clientY - gesture.startY);
+    gesture.vertical = deltaY > 8 && deltaY > Math.abs(deltaX) * 1.15;
+    gesture.deltaY = gesture.vertical ? deltaY : 0;
+    if (!gesture.vertical) return;
+    if (mobileGalleryRef.current) mobileGalleryRef.current.style.transform = `translateY(${Math.min(deltaY, 260)}px)`;
+    if (mobileGalleryOverlayRef.current) {
+      const alpha = Math.max(.42, 1 - deltaY / 440);
+      mobileGalleryOverlayRef.current.style.backgroundColor = `rgba(24, 25, 35, ${alpha})`;
+    }
+  };
+  const handleGalleryPointerEnd = () => {
+    if (!galleryGestureRef.current.active) return;
+    galleryGestureRef.current.active = false;
+    const shouldClose = galleryGestureRef.current.vertical && galleryGestureRef.current.deltaY > 90;
+    if (shouldClose) {
+      setMobileGalleryIndex(null);
+      return;
+    }
+    if (mobileGalleryRef.current) {
+      mobileGalleryRef.current.style.transition = 'transform .28s cubic-bezier(.2,.8,.2,1)';
+      mobileGalleryRef.current.style.transform = 'translateY(0)';
+    }
+    if (mobileGalleryOverlayRef.current) mobileGalleryOverlayRef.current.style.backgroundColor = '';
   };
 
   return (
@@ -178,81 +272,67 @@ export default function ProductPage() {
         </section>
 
         <section className="catalog-close-look" id="details">
-          <div className="catalog-shell close-look__topbar">
-            <div className="close-look__tools">
-              <div className="close-look__controls" aria-label="Điều khiển bộ ảnh">
-                <button onClick={() => scrollCloseLook(-1)} aria-label="Ảnh trước"><img src="/icons/Frame 21.svg" alt="" /></button>
-                <button onClick={() => scrollCloseLook(1)} aria-label="Ảnh tiếp theo"><img src="/icons/Frame 21-1.svg" alt="" /></button>
-              </div>
-            </div>
-          </div>
           <div className="close-look__track" ref={closeLookRef}>
             {detailStories.map((story, index) => (
               <article className="close-look__item" key={`${story.title}-${index}`}>
                 <figure className={`close-look__visual close-look__visual--${(index % 3) + 1}`}>
-                  <img className={story.fit === 'contain' ? 'is-contain' : ''} src={story.image} alt={story.title} loading={index > 1 ? 'lazy' : 'eager'} />
-                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <button className="close-look__open" onClick={() => openMobileGallery(index)} aria-label={`Mở ảnh ${index + 1}`}>
+                    <img className={story.fit === 'contain' ? 'is-contain' : ''} src={story.image} alt={story.title} loading={index > 1 ? 'lazy' : 'eager'} />
+                  </button>
                 </figure>
               </article>
             ))}
           </div>
-          <div className="colorway-dots close-look__colorways liquid-color-nav" aria-label="Chọn màu áo">
-            {colorways.map((colorway) => (
-              <button
-                key={colorway.id}
-                className={colorway.id === activeColorway.id ? 'active' : ''}
-                onClick={() => selectColorway(colorway)}
-                aria-label={colorway.name}
-                aria-pressed={colorway.id === activeColorway.id}
-                title={colorway.name}
-              >
-                <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
-              </button>
-            ))}
+          <div className="catalog-shell close-look__nav">
+            <div className="colorway-dots close-look__colorways liquid-color-nav" aria-label="Chọn màu áo">
+              <span className="liquid-color-nav__label">Màu:</span>
+              {colorways.map((colorway) => (
+                <button
+                  key={colorway.id}
+                  className={colorway.id === activeColorway.id ? 'active' : ''}
+                  onClick={() => selectColorway(colorway)}
+                  aria-label={colorway.name}
+                  aria-pressed={colorway.id === activeColorway.id}
+                  title={colorway.name}
+                >
+                  <span style={{ background: colorway.hex, borderColor: colorway.border || colorway.hex }} />
+                </button>
+              ))}
+            </div>
+            <div className="close-look__controls" aria-label="Điều khiển bộ ảnh">
+              <button onClick={() => scrollCloseLook(-1)} aria-label="Ảnh trước"><img src="/icons/Frame 21.svg" alt="" /></button>
+              <button onClick={() => scrollCloseLook(1)} aria-label="Ảnh tiếp theo"><img src="/icons/Frame 21-1.svg" alt="" /></button>
+            </div>
           </div>
         </section>
 
-        <section className="print-layouts catalog-shell" id="specs">
-          <div className="catalog-section-heading catalog-spec-intro">
-            <div><h2>Mô tả sản phẩm.</h2></div>
-          </div>
-
-          <div className="catalog-spec catalog-spec--embedded">
-            <div className="catalog-spec__product">
-              <span className="catalog-spec__word">DRIBALL</span>
-              <img
-                className={materialImages[materialIndex].fit === 'contain' ? 'is-contain' : ''}
-                src={materialImages[materialIndex].image}
-                alt={materialImages[materialIndex].title}
-              />
-              <div className="material-dots" aria-label="Chọn ảnh chất liệu">
-                {materialImages.map((image, index) => (
-                  <button
-                    key={`${image.image}-${index}`}
-                    className={index === materialIndex ? 'active' : ''}
-                    onClick={() => setMaterialIndex(index)}
-                    aria-label={`Ảnh chất liệu ${index + 1}`}
-                    aria-pressed={index === materialIndex}
-                  ><span /></button>
-                ))}
-              </div>
+        <section className="product-description" id="specs">
+          <div className="catalog-shell product-description__inner">
+            <div className="product-description__intro">
+              <p className="catalog-eyebrow">STRIPE SERIES / MÔ TẢ SẢN PHẨM</p>
+              <h2>Tôn trọng. Cổ điển.</h2>
+              <p>Với 3 phối màu cùng 3 tỷ lệ sọc khác nhau, kết hợp cùng những chi tiết và chất liệu hoàn toàn mới lần đầu tiên xuất hiện trên áo đấu DRIBALL, tất cả được tạo nên để mang đến cảm giác của một phiên bản Player chỉn chu hơn, cao cấp hơn và đậm chất áo đấu hơn.</p>
             </div>
-            <div className="catalog-spec__facts">
-              <div className="catalog-spec__grid">
-                <div><span>Chất liệu</span><strong>100% Polyester 150gsm</strong></div>
-                <div className="catalog-spec__size"><span>Form áo</span><strong>Regular fit/Sport fit</strong><button onClick={() => setSizeChartOpen(true)}>Xem bảng size ↗</button></div>
-                <div><span>Tính năng</span><strong>Quick-dry</strong></div>
-                <div><span>Hoạt động</span><strong>Bóng đá</strong></div>
-              </div>
+            <div className="product-description__features">
+              {PRODUCT_FEATURES.map((feature) => (
+                <article key={feature.label}>
+                  <span className="product-description__icon material-symbols-outlined" aria-hidden="true">{feature.icon}</span>
+                  <small>{feature.label}</small>
+                  <strong>{feature.value}</strong>
+                  {feature.sizeGuide && <button onClick={() => setSizeChartOpen(true)}>Xem bảng size ↗</button>}
+                </article>
+              ))}
             </div>
           </div>
+        </section>
 
+        <section className="print-layouts catalog-shell" id="printing">
           <div className="catalog-section-heading print-layouts__heading print-layouts__heading--after-spec" id="printing">
             <div>
-              <p className="catalog-eyebrow">MAKE IT YOURS</p>
+              <p className="catalog-eyebrow">DRIBALL PRINTING</p>
               <h2>Tạo dấu ấn riêng<br />cho team bạn.</h2>
             </div>
-            <p>Từ gói in tên số, font thi đấu, vị trí logo đến chất liệu DTF — chọn từng lớp nhận diện để bộ áo trông đúng là của đội bạn.</p>
+            <p>Sốp cung cấp các gói in ấn phù hợp cho từng nhu cầu của đội bóng. Khâu in ấn luôn chỉn chu và tỉ mỉ.</p>
           </div>
 
           <div className="printing-stack" aria-label="Các gói layout in ấn">
@@ -290,7 +370,6 @@ export default function ProductPage() {
 
         <section className="product-close catalog-shell">
           <div className="product-close__copy">
-            <p className="catalog-eyebrow">STRIPE SERIES / TEAM PICK</p>
             <div className="product-close__team-tag"><strong>16</strong><span>ĐỘI ĐÃ LỰA CHỌN<br />STRIPE SERIES</span></div>
             <h2>Chốt mẫu này?</h2>
             <p>Chọn màu đội thích, thêm các lựa chọn in ấn và xem ngay mức giá theo số lượng.</p>
@@ -317,24 +396,49 @@ export default function ProductPage() {
 
         <div className={`modal-overlay ${activePrintPackage ? 'active' : ''}`} onClick={() => setActivePrintPackage(null)}>
           {activePrintPackage && (
-            <div className="modal-content printing-modal" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={activePrintPackage.title}>
+            <div className="modal-content printing-modal printing-modal--journey" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Driball Printing">
               <header className="printing-modal__header">
-                <span>✨ {activePrintPackage.eyebrow}</span>
+                <span>DRIBALL PRINTING / MAKE IT YOURS</span>
                 <button onClick={() => setActivePrintPackage(null)} aria-label="Đóng">×</button>
               </header>
-              <div className="printing-modal__body">
-                <h3>{activePrintPackage.title}</h3>
-                <p>{activePrintPackage.detail}</p>
-                {activePrintPackage.image && <img className="printing-modal__image" src={activePrintPackage.image} alt={activePrintPackage.title} />}
-                {activePrintPackage.packages && (
-                  <div className="printing-modal__packages">
-                    {activePrintPackage.packages.map((item, index) => (
-                      <article key={item.name}><span>0{index + 1}</span><div><strong>{item.name}</strong><p>{item.text}</p></div></article>
-                    ))}
-                  </div>
-                )}
-                {activePrintPackage.galleryPlaceholder && <div className="printing-modal__placeholder"><span>+</span><p>{activePrintPackage.galleryPlaceholder}</p></div>}
-                <div className="printing-modal__tags">{activePrintPackage.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+              <div className="printing-modal__scroller" ref={printingModalRef}>
+                {CUSTOMIZATION_CARDS.map((item, index) => (
+                  <section className="printing-journey" data-print-section={item.id} key={item.id}>
+                    <div className="printing-journey__number">0{index + 1}</div>
+                    {item.id === 'print-packages' ? (
+                      <>
+                        <div className="printing-method-tabs" role="tablist" aria-label="Chọn phương pháp in">
+                          {PRINTING_METHODS.map((method) => <button key={method.id} role="tab" aria-selected={activePrintingTab === method.id} className={activePrintingTab === method.id ? 'is-active' : ''} onClick={() => setActivePrintingTab(method.id)}>{method.tab}</button>)}
+                        </div>
+                        {PRINTING_METHODS.filter((method) => method.id === activePrintingTab).map((method) => (
+                          <div className="printing-method" key={method.id}>
+                            <img src={method.image} alt={`Minh hoạ ${method.title}`} />
+                            <div className="printing-method__copy">
+                              <p>{item.eyebrow}</p>
+                              <h3>{method.title}</h3>
+                              <p>{method.description}</p>
+                              <div className="printing-method__pricing">
+                                <strong>Chi phí in ấn</strong>
+                                <span>{method.price}</span>
+                                <span>{method.extra}</span>
+                                <span>{method.upgrade}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="printing-modal__body">
+                        <p className="catalog-eyebrow">{item.eyebrow}</p>
+                        <h3>{item.title}</h3>
+                        <p>{item.detail}</p>
+                        {item.image && <img className="printing-modal__image" src={item.image} alt={item.title} />}
+                        {item.galleryPlaceholder && <div className="printing-modal__placeholder"><span>+</span><p>{item.galleryPlaceholder}</p></div>}
+                        <div className="printing-modal__tags">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                      </div>
+                    )}
+                  </section>
+                ))}
               </div>
             </div>
           )}
@@ -359,6 +463,19 @@ export default function ProductPage() {
               </div>
             </div>
           )}
+        </div>
+
+        <div ref={mobileGalleryOverlayRef} className={`mobile-gallery ${mobileGalleryIndex !== null ? 'active' : ''}`} role="dialog" aria-modal="true" aria-label="Xem ảnh sản phẩm" onClick={() => setMobileGalleryIndex(null)}>
+          <button className="mobile-gallery__close" onClick={() => setMobileGalleryIndex(null)} aria-label="Đóng thư viện ảnh">×</button>
+          <div className="mobile-gallery__track" ref={mobileGalleryRef} onClick={(event) => event.stopPropagation()} onPointerDown={handleGalleryPointerStart} onPointerMove={handleGalleryPointerMove} onPointerUp={handleGalleryPointerEnd} onPointerCancel={handleGalleryPointerEnd}>
+            {detailStories.map((story, index) => (
+              <figure className="mobile-gallery__slide" key={`gallery-${story.title}-${index}`}>
+                <div className="mobile-gallery__media">
+                  <img src={story.image} alt={story.title} />
+                </div>
+              </figure>
+            ))}
+          </div>
         </div>
       </main>
       <Footer />

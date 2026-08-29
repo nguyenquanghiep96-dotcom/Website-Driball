@@ -13,9 +13,8 @@ export const PRICE_TIERS = [
 ];
 
 export const PRINT_OPTIONS = [
-  { id: 'none', name: 'Áo trơn', description: 'Giữ nguyên thiết kế mẫu, chưa thêm tên số và logo đội', price: 0 },
-  { id: 'basic', name: 'In ấn cơ bản', description: 'In số, tên, logo đội', price: 35000 },
-  { id: 'premium', name: 'In ấn nâng cao', description: 'In số, tên, logo + hoạ tiết tuỳ chỉnh', price: 45000 },
+  { id: 'sublimation', name: 'In thăng hoa', description: 'In trực tiếp vào áo, 1–5 vị trí cơ bản miễn phí khi đặt theo đội', price: 0 },
+  { id: 'basic', name: 'PET / DTF', description: 'Màng in mỏng, sắc nét và hoàn thiện cao cấp cho 1–5 vị trí', price: 35000 },
 ];
 
 export const UPGRADE_OPTIONS = [

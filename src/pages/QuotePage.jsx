@@ -46,7 +46,7 @@ export default function QuotePage() {
   });
   const [selectedPrintOption, setSelectedPrintOption] = useState(() => {
     const requested = getInitialParams().get('print');
-    return PRINT_OPTIONS.some((option) => option.id === requested) ? requested : 'basic';
+    return PRINT_OPTIONS.some((option) => option.id === requested) ? requested : 'sublimation';
   });
   const [selectedUpgradeOptions, setSelectedUpgradeOptions] = useState(() => {
     const requested = (getInitialParams().get('upgrades') || '').split(',').filter(Boolean);
@@ -230,11 +230,16 @@ export default function QuotePage() {
                   <div className="quote-product-current__copy">
                     <span>MẪU ĐANG CHỌN</span>
                     <h3>{product.name}</h3>
+                    <div className="quote-product-current__colors" aria-label="Chọn màu sản phẩm">
+                      {product.colors.map((color, index) => (
+                        <button key={`${color.name}-${index}`} className={safeColorIndex === index ? 'is-active' : ''} onClick={() => setSelectedColor(index)} aria-label={color.name} aria-pressed={safeColorIndex === index} title={color.name}><span style={{ background: color.hex }} /></button>
+                      ))}
+                    </div>
                     <p>{product.tagline}</p>
                     <label>
                       <span>Đổi sang mẫu khác</span>
                       <select value={product.slug} onChange={(event) => changeProduct(event.target.value)}>
-                        {products.map((item) => <option value={item.slug} key={item.id}>{item.name} · {item.colors[0]?.name}</option>)}
+                        {products.map((item) => <option value={item.slug} key={item.id}>{item.name}</option>)}
                       </select>
                     </label>
                   </div>
@@ -256,12 +261,6 @@ export default function QuotePage() {
                   <span>BỘ</span>
                 </label>
                 <button onClick={() => setQuantity((value) => Math.min(999, value + 1))} aria-label="Tăng số lượng">+</button>
-              </div>
-
-              <div className="quote-quick-quantities">
-                {[10, 20, 30, 50].map((value) => (
-                  <button key={value} onClick={() => setQuantity(value)} className={quantity === value ? 'is-active' : ''}>{value} bộ</button>
-                ))}
               </div>
 
               <div className="quote-tiers">
@@ -295,10 +294,7 @@ export default function QuotePage() {
                   </button>
                 ))}
               </div>
-              </section>
-
-              <section className="quote-config-card quote-block--upgrade" aria-label="Nâng cấp">
-              <div className="quote-upgrades">
+              <div className="quote-upgrades quote-upgrades--inside-print">
                 {UPGRADE_OPTIONS.map((option) => {
                   const selected = selectedUpgradeOptions.includes(option.id);
                   return (
