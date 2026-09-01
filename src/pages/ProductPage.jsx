@@ -34,6 +34,7 @@ const FALLBACK_DETAILS = [
 const CUSTOMIZATION_CARDS = [
   {
     id: 'print-packages',
+    journeyTitle: 'In ấn theo đội',
     eyebrow: 'CHỌN MỨC HOÀN THIỆN',
     title: 'Các gói in ấn',
     subtitle: '02 phương pháp hoàn thiện theo nhu cầu đội',
@@ -47,15 +48,16 @@ const CUSTOMIZATION_CARDS = [
   },
   {
     id: 'number-fonts',
-    eyebrow: 'PLAYER ID',
+    journeyTitle: 'Font số',
     title: 'Font số',
     subtitle: 'Chọn cá tính cho tên và số cầu thủ',
-    detail: 'Từ nét thể thao cổ điển đến kiểu chữ hiện đại, font số là chi tiết giúp cả đội thống nhất khi nhìn từ xa.',
-    galleryPlaceholder: 'Bộ font số sẽ được bổ sung tại đây.',
-    tags: ['FONT TÊN', 'FONT SỐ', 'PLAYER ID'],
+    detail: 'Driball cung cấp font số được thiết kế riêng biệt, tỉ lệ và kích thước theo tiêu chuẩn hiện đại và chuyên nghiệp.',
+    image: '/images/products/stripe-blue/details/font-number-set.png',
+    tags: ['FONT TÊN', 'FONT SỐ', 'TIÊU CHUẨN THI ĐẤU'],
   },
   {
     id: 'layout-guide',
+    journeyTitle: 'Layout gợi ý',
     eyebrow: 'PLACEMENT PLAYBOOK',
     title: 'Layout gợi ý',
     subtitle: 'Logo, tài trợ và số áo đúng vị trí',
@@ -65,6 +67,7 @@ const CUSTOMIZATION_CARDS = [
   },
   {
     id: 'material-upgrade',
+    journeyTitle: 'Nâng cấp chất liệu',
     eyebrow: 'DTF UPGRADE',
     title: 'Nâng cấp chất liệu',
     subtitle: 'Logo sắc nét hơn, hoàn thiện nổi bật hơn',
@@ -75,30 +78,30 @@ const CUSTOMIZATION_CARDS = [
 ];
 
 const PRODUCT_FEATURES = [
-  { icon: 'laundry', label: 'Chất liệu', value: '100% Polyester 150gsm' },
-  { icon: 'directions_run', label: 'Form áo', value: 'Regular fit / Sport fit', sizeGuide: true },
-  { icon: 'cool_to_dry', label: 'Tính năng', value: 'Quick-dry' },
-  { icon: 'sports_and_outdoors', label: 'Hoạt động', value: 'Bóng đá' },
+  { icon: 'laundry', label: 'Chất liệu', value: '100% Polyester' },
+  { icon: 'directions_run', label: 'Form áo', value: 'Regular', sizeGuide: true },
+  { icon: 'cool_to_dry', label: 'Tính năng', value: 'Thoáng mát' },
+  { icon: 'sports_and_outdoors', label: 'Hoạt động', value: 'Bóng đá & More' },
 ];
 
 const PRINTING_METHODS = [
   {
     id: 'sublimation',
     tab: 'In thăng hoa',
-    title: 'Gói in thăng hoa (Heat Transfer)',
+    title: 'Gói in ấn thăng hoa (Heat Transfer)',
     description: 'In trực tiếp vào áo để màu và hình ảnh thấm sâu vào sợi vải. Bề mặt vẫn nhẹ, sắc nét, không bong tróc và giữ màu ổn định theo thời gian.',
-    price: 'Gói 1–5 vị trí cơ bản: Miễn phí khi đặt theo đội',
-    extra: 'Thêm vị trí khác: +10.000đ/vị trí',
+    price: 'Miễn phí 5 vị trí: Logo đội ở ngực, nhà tài trợ ở bụng, tên, số và số quần',
+    extra: 'Thêm 1 vị trí khác: +10.000đ/vị trí',
     upgrade: 'Nâng cấp logo 3D DTF cao cấp: +15.000đ/logo',
     image: '/images/products/stripe-blue/details/print-layout-01.jpg',
   },
   {
     id: 'dtf',
     tab: 'PET / DTF',
-    title: 'In PET chuyển nhiệt (DTF) / Decal',
+    title: 'Gói in PET chuyển nhiệt (DTF) / Decal',
     description: 'Các chi tiết được hoàn thiện bằng một màng decal mỏng, bề mặt mịn và phù hợp với vận động thể thao. Hình in sắc nét, chuyên nghiệp, tạo cảm giác cao cấp cho toàn bộ áo đấu.',
-    price: 'Gói 1–5 vị trí cơ bản: +35.000đ/bộ',
-    extra: 'Thêm vị trí khác: +10.000đ/vị trí',
+    price: 'Gói 5 vị trí: +35.000đ/bộ — Logo đội ở ngực, nhà tài trợ ở bụng, tên, số và số quần',
+    extra: 'Thêm 1 vị trí khác: +10.000đ/vị trí',
     upgrade: 'Nâng cấp logo 3D DTF cao cấp: +15.000đ/logo',
     image: '/images/products/stripe-blue/details/print-layout-02.jpg',
   },
@@ -116,6 +119,7 @@ export default function ProductPage() {
   const product = products.find((item) => item.slug === slug);
   const closeLookRef = useRef(null);
   const printingModalRef = useRef(null);
+  const printingOverlayRef = useRef(null);
   const mobileGalleryRef = useRef(null);
   const mobileGalleryOverlayRef = useRef(null);
   const galleryGestureRef = useRef({ startX: 0, startY: 0, deltaY: 0, vertical: false, active: false });
@@ -175,7 +179,9 @@ export default function ProductPage() {
     if (!activePrintPackage || !printingModalRef.current) return;
     const frame = window.requestAnimationFrame(() => {
       const target = printingModalRef.current?.querySelector(`[data-print-section="${activePrintPackage.id}"]`);
-      if (target) printingModalRef.current.scrollTop = target.offsetTop;
+      if (target && printingOverlayRef.current) {
+        printingOverlayRef.current.scrollTop = Math.max(0, target.offsetTop - 20);
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, [activePrintPackage]);
@@ -394,17 +400,19 @@ export default function ProductPage() {
           </div>
         </section>
 
-        <div className={`modal-overlay ${activePrintPackage ? 'active' : ''}`} onClick={() => setActivePrintPackage(null)}>
+        <div ref={printingOverlayRef} className={`modal-overlay printing-modal-overlay ${activePrintPackage ? 'active' : ''}`} onClick={() => setActivePrintPackage(null)}>
           {activePrintPackage && (
             <div className="modal-content printing-modal printing-modal--journey" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Driball Printing">
-              <header className="printing-modal__header">
-                <span>DRIBALL PRINTING / MAKE IT YOURS</span>
-                <button onClick={() => setActivePrintPackage(null)} aria-label="Đóng">×</button>
-              </header>
+              <div className="printing-modal__close-wrap">
+                <button className="printing-modal__close" onClick={() => setActivePrintPackage(null)} aria-label="Đóng">×</button>
+              </div>
               <div className="printing-modal__scroller" ref={printingModalRef}>
                 {CUSTOMIZATION_CARDS.map((item, index) => (
                   <section className="printing-journey" data-print-section={item.id} key={item.id}>
-                    <div className="printing-journey__number">0{index + 1}</div>
+                    <div className="printing-journey__heading">
+                      <span>0{index + 1}</span>
+                      <h2>{item.journeyTitle || item.title}</h2>
+                    </div>
                     {item.id === 'print-packages' ? (
                       <>
                         <div className="printing-method-tabs" role="tablist" aria-label="Chọn phương pháp in">
@@ -414,7 +422,6 @@ export default function ProductPage() {
                           <div className="printing-method" key={method.id}>
                             <img src={method.image} alt={`Minh hoạ ${method.title}`} />
                             <div className="printing-method__copy">
-                              <p>{item.eyebrow}</p>
                               <h3>{method.title}</h3>
                               <p>{method.description}</p>
                               <div className="printing-method__pricing">
@@ -429,10 +436,8 @@ export default function ProductPage() {
                       </>
                     ) : (
                       <div className="printing-modal__body">
-                        <p className="catalog-eyebrow">{item.eyebrow}</p>
-                        <h3>{item.title}</h3>
                         <p>{item.detail}</p>
-                        {item.image && <img className="printing-modal__image" src={item.image} alt={item.title} />}
+                        {item.image && <img className={`printing-modal__image printing-modal__image--${item.id}`} src={item.image} alt={item.title} />}
                         {item.galleryPlaceholder && <div className="printing-modal__placeholder"><span>+</span><p>{item.galleryPlaceholder}</p></div>}
                         <div className="printing-modal__tags">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
                       </div>
