@@ -325,7 +325,7 @@ export default function ProductPage() {
                   <span className="product-description__icon material-symbols-outlined" aria-hidden="true">{feature.icon}</span>
                   <small>{feature.label}</small>
                   <strong>{feature.value}</strong>
-                  {feature.sizeGuide && <button onClick={() => setSizeChartOpen(true)}>Xem bảng size ↗</button>}
+                  {feature.sizeGuide && <button onClick={() => setSizeChartOpen(true)}>Xem bảng size <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></button>}
                 </article>
               ))}
             </div>
@@ -392,7 +392,7 @@ export default function ProductPage() {
               ))}
             </div>
             <Link to={`/quote/${product.slug}`} className="catalog-button catalog-button--light">
-              Bắt đầu tính giá <span>↗</span>
+              Bắt đầu tính giá <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span>
             </Link>
           </div>
           <div className="product-close__visual">

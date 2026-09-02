@@ -36,8 +36,6 @@ export default function ProductGrid() {
   const [activeCategory, setActiveCategory] = useState('new');
   const [activeColor, setActiveColor] = useState(null);
   const scrollRef = useRef(null);
-  const endRef = useRef(null);
-  const [isLastCardVisible, setIsLastCardVisible] = useState(false);
 
   const availableCategories = CATEGORIES.filter((category) =>
     products.some((product) => product.category === category.id)
@@ -46,16 +44,6 @@ export default function ProductGrid() {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollLeft = 0;
-  }, [activeCategory]);
-
-  useEffect(() => {
-    if (!scrollRef.current || !endRef.current) return undefined;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsLastCardVisible(entry.isIntersecting),
-      { root: scrollRef.current, threshold: 0.9 }
-    );
-    observer.observe(endRef.current);
-    return () => observer.disconnect();
   }, [activeCategory]);
 
   const scroll = (direction) => {
@@ -76,7 +64,7 @@ export default function ProductGrid() {
           <div className="product-grid__header">
             <h2 className="heading-xl">NHỮNG MẪU ĐẶT ĐỘI</h2>
             <div className="product-grid__header-actions">
-              <Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span>↗</span></Link>
+              <Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></Link>
               <div className="product-grid__nav-arrows">
                 <button className="product-grid__arrow" onClick={() => scroll('prev')} aria-label="Mẫu trước">
                   <img src="/icons/Frame 21.svg" alt="" width="24" height="24" />
@@ -110,12 +98,15 @@ export default function ProductGrid() {
       {/* Cards: full-viewport scroll container */}
       <div className="product-grid__scroll" ref={scrollRef}>
         {filtered.map(product => <ProductCard key={product.id} product={product} globalColor={activeColor} />)}
-        <span className="product-grid__scroll-end" ref={endRef} aria-hidden="true" />
+        <article className="product-card product-grid__catalog-card">
+          <Link to="/catalog">Xem toàn bộ {products.length} mẫu <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></Link>
+        </article>
       </div>
       <div className="product-grid__filters container">
-        <ColorFilterDots activeColor={activeColor} onChange={setActiveColor} />
+        <div className="product-grid__filter-shell">
+          <ColorFilterDots activeColor={activeColor} onChange={setActiveColor} />
+        </div>
       </div>
-      {isLastCardVisible && <div className="product-grid__mobile-view-all container"><Link to="/catalog" className="product-grid__view-all">XEM TẤT CẢ <span>↗</span></Link></div>}
     </section>
   );
 }

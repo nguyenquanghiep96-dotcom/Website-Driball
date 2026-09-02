@@ -208,7 +208,7 @@ export default function QuotePage() {
       </div>
 
       <button className="quote-action quote-action--zalo" onClick={sendToZalo}>
-        Gửi Driball qua Zalo <span>↗</span>
+        Gửi Driball qua Zalo <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span>
       </button>
       <button className="quote-action quote-action--save" onClick={saveQuote}>
         Lưu & sao chép link cho team
@@ -319,7 +319,7 @@ export default function QuotePage() {
             <strong>{formatPrice(pricing.totalPrice)}</strong>
             <small>Áo {formatPrice(pricing.baseUnitPrice)} + in {pricing.printPrice ? formatPrice(pricing.printPrice) : '0đ'} · <b>{formatPrice(pricing.pricePerUnit)}/bộ sau in</b></small>
           </div>
-          <button onClick={sendToZalo}>Gửi Zalo ↗</button>
+          <button onClick={sendToZalo}>Gửi Zalo <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></button>
         </div>
 
         {notice && <div className="quote-notice" role="status">{notice}</div>}

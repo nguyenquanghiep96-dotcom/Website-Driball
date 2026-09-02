@@ -84,7 +84,7 @@ export default function BentoGrid() {
       <div className="bento__intro container">
         <ScrollReveal>
           <p className="bento__eyebrow">DRIBALL / MORE THAN A KIT</p>
-          <h2 className="bento__heading">DRIBALL CÒN<br /><em>GÌ HAY? 👀</em></h2>
+          <h2 className="bento__heading">KHÁM PHÁ <em>DRIBALL. 👀</em></h2>
           <p className="bento__lead">Lật từng tấm thẻ để khám phá thêm những chuyện phía sau một bộ áo.</p>
         </ScrollReveal>
       </div>

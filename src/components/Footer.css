@@ -2,7 +2,7 @@
 .footer__nav { padding: 72px 0 56px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; border-bottom: 1px solid rgba(255,255,255,.18); }
 .footer__nav > div { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .footer__nav > div > span { margin-bottom: 9px; color: rgba(255,255,255,.4); font-size: 10px; font-weight: 850; letter-spacing: .14em; }
-.footer__nav a { font-size: 14px; font-weight: 650; transition: color .2s ease; }
+.footer__nav a { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 650; transition: color .2s ease; }
 .footer__nav a:hover { color: #fbff67; }
 .footer__wordmark { padding-top: 48px; display: flex; justify-content: center; }
 .footer__wordmark img { width: min(100%, 1439px); height: auto; filter: invert(1); }

@@ -6,7 +6,7 @@ export default function FooterCta() {
     <section className="footer-cta" aria-label="Bắt đầu tính giá">
       <div className="footer-cta__inner container">
         <div><span>ĐỘI ĐÃ ĐỦ NGƯỜI?</span><h2>CHỐT KÈO<br />ÁO ĐẸP.</h2></div>
-        <Link to="/quote/stripe-series-blue" className="btn btn-primary">TÍNH GIÁ NHANH <span>↗</span></Link>
+        <Link to="/quote/stripe-series-blue" className="btn btn-primary">TÍNH GIÁ NHANH <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></Link>
       </div>
     </section>
   );

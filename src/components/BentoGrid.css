@@ -156,7 +156,7 @@
   .bento__eyebrow { margin-bottom: 16px; }
   .bento__heading { font-size: clamp(47px, 14.2vw, 74px); letter-spacing: -.065em; }
   .bento__lead { max-width: 330px; margin-top: 25px; font-size: 16px; }
-  .bento__stack { min-height: 475px; margin-top: 20px; padding: 18px 22px 42px; }
+  .bento__stack { min-height: 475px; margin-top: 20px; padding: 18px 22px 100px; }
   .bento__card { flex: 0 0 min(76vw, 300px); margin-left: -38px; border-radius: 19px; }
   .bento__card:first-child { margin-left: 0; }
   .bento__card:nth-child(1) { --card-rotate: -4deg; }

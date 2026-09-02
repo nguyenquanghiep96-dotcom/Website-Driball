@@ -2,7 +2,7 @@
 .marquee-section {
   position: relative;
   overflow: hidden;
-  padding: clamp(80px, 15vw, 200px) 0;
+  padding: 250px 0;
 }
 
 /* ── Floating product image ── */
@@ -100,6 +100,10 @@
 
 /* ── Mobile adjustments ── */
 @media (max-width: 768px) {
+  .marquee-section {
+    padding: 100px 0;
+  }
+
   .marquee-section__product-img {
     height: clamp(200px, 45vw, 400px);
   }
