@@ -1,6 +1,14 @@
 /* ── Product Grid Section ── */
 .product-grid {
+  --space-3xl: 110px;
   overflow: hidden;
+}
+
+@media (min-width: 769px) {
+  .product-grid {
+    padding-top: var(--space-3xl);
+    padding-bottom: var(--space-3xl);
+  }
 }
 
 .product-grid__header-actions { display: flex; align-items: center; gap: 10px; }
@@ -10,7 +18,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-lg);
+  margin-bottom: calc(var(--space-lg) + 20px);
   gap: 20px;
   flex-wrap: wrap;
 }

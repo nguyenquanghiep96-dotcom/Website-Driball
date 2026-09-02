@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollReveal } from '../hooks/useScrollReveal';
 import './Partners.css';
 
@@ -11,6 +11,45 @@ const PLACEHOLDER_TEAM_IMAGE = '/images/products/stripe-blue/details/lifestyle.j
 
 export default function Partners() {
   const [activePartner, setActivePartner] = useState(null);
+  const marqueeRef = useRef(null);
+  const dragRef = useRef({ active: false, moved: false, startX: 0, startScroll: 0 });
+  const suppressClickRef = useRef(false);
+
+  const startDrag = (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    const marquee = marqueeRef.current;
+    if (!marquee) return;
+    dragRef.current = { active: true, moved: false, startX: event.clientX, startScroll: marquee.scrollLeft };
+    marquee.classList.add('is-dragging');
+    marquee.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  };
+
+  const moveDrag = (event) => {
+    const marquee = marqueeRef.current;
+    if (!marquee || !dragRef.current.active) return;
+    const distance = event.clientX - dragRef.current.startX;
+    if (Math.abs(distance) > 4) dragRef.current.moved = true;
+    marquee.scrollLeft = dragRef.current.startScroll - distance;
+    event.preventDefault();
+  };
+
+  const finishDrag = (event) => {
+    const marquee = marqueeRef.current;
+    if (!marquee || !dragRef.current.active) return;
+    const moved = dragRef.current.moved;
+    dragRef.current.active = false;
+    marquee.classList.remove('is-dragging');
+    if (marquee.hasPointerCapture(event.pointerId)) marquee.releasePointerCapture(event.pointerId);
+    if (moved) {
+      suppressClickRef.current = true;
+      window.requestAnimationFrame(() => { suppressClickRef.current = false; });
+    }
+  };
+
+  const openPartner = (partner) => {
+    if (!suppressClickRef.current) setActivePartner(partner);
+  };
 
   useEffect(() => {
     if (!activePartner) return undefined;
@@ -34,11 +73,19 @@ export default function Partners() {
       </div>
 
       <ScrollReveal delay={1}>
-        <div className="partners__marquee" aria-label="Các đội bóng đồng hành">
+        <div
+          className="partners__marquee"
+          ref={marqueeRef}
+          aria-label="Các đội bóng đồng hành"
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={finishDrag}
+          onPointerCancel={finishDrag}
+        >
           {[partnerLogos, [...partnerLogos].reverse()].map((row, rowIndex) => (
             <div className={`partners__track ${rowIndex ? 'partners__track--reverse' : ''}`} key={rowIndex}>
               {[...row, ...row].map((partner, index) => (
-                <button key={`${rowIndex}-${partner.id}-${index}`} className="partners__item" onClick={() => setActivePartner(partner)} aria-label={`Xem hình đội bóng ${partner.id}`}>
+                <button key={`${rowIndex}-${partner.id}-${index}`} className="partners__item" onClick={() => openPartner(partner)} aria-label={`Xem hình đội bóng ${partner.id}`}>
                   <img src={partner.logo} alt="" loading="lazy" />
                 </button>
               ))}
