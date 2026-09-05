@@ -44,7 +44,8 @@
 
 @media (max-width: 640px) {
   .hero__card {
-    aspect-ratio: 848 / 1427;
+    height: min(640px, 78svh);
+    aspect-ratio: auto;
   }
 
   .hero__ticker {

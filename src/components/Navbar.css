@@ -6,6 +6,7 @@
   right: 0;
   z-index: 100;
   height: var(--nav-height);
+  background: #fff;
   transition: background-color 0.3s var(--ease-out),
               box-shadow 0.3s var(--ease-out);
 }

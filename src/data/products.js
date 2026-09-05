@@ -6,19 +6,20 @@ export const ZALO_LINK = 'https://zalo.me/0000000000'; // Placeholder — cập 
 export const DELIVERY_TIME = '14 ngày kể từ ngày cọc tiền';
 
 export const PRICE_TIERS = [
-  { minQty: 1, label: '1–9 bộ', discount: 0 },
-  { minQty: 10, label: '10–19 bộ', discount: 10000 },
-  { minQty: 20, label: '20–49 bộ', discount: 20000 },
-  { minQty: 50, label: '50+ bộ', discount: 30000 },
+  { minQty: 1, label: 'Từ 1 - 9', discount: 0 },
+  { minQty: 10, label: 'Từ 10 - 19', discount: 10000 },
+  { minQty: 20, label: 'Từ 20 - 49', discount: 20000 },
+  { minQty: 50, label: 'Từ 50+', discount: 30000 },
 ];
 
 export const PRINT_OPTIONS = [
-  { id: 'sublimation', name: 'In thăng hoa', description: 'In trực tiếp vào áo, 1–5 vị trí cơ bản miễn phí khi đặt theo đội', price: 0 },
-  { id: 'basic', name: 'PET / DTF', description: 'Màng in mỏng, sắc nét và hoàn thiện cao cấp cho 1–5 vị trí', price: 35000 },
+  { id: 'none', name: 'Không in ấn', summaryName: 'Không in ấn', description: 'Giữ nguyên mẫu áo, không thêm tên số hoặc logo.', price: 0 },
+  { id: 'sublimation', name: 'In ấn thăng hoa', summaryName: 'Gói in thăng hoa', description: 'In ấn tiêu chuẩn · Tối ưu chi phí', price: 0 },
+  { id: 'basic', name: 'In ấn Pet (DTF)/Decal', summaryName: 'Gói in PET / DTF', description: 'In ấn chuyên nghiệp · Chuẩn thi đấu', price: 35000 },
 ];
 
 export const UPGRADE_OPTIONS = [
-  { id: 'dtf-logo', name: 'Nâng cấp Logo DTF cao cấp', description: 'Logo in DTF sắc nét, bền màu, không bong tróc', price: 15000, unit: '/logo' },
+  { id: 'dtf-logo', name: 'Logo đội hiệu ứng 3D cao cấp', summaryName: 'Nâng cấp logo DTF cao cấp', description: 'Nâng cấp logo đội cao cấp, tăng độ hoàn thiện áo đấu.', price: 15000, unit: '/logo' },
 ];
 
 export const CATEGORIES = [

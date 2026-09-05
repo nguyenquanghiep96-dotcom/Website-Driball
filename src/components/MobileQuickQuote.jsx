@@ -26,5 +26,5 @@ export default function MobileQuickQuote() {
   }, []);
 
   if (!visible) return null;
-  return <Link to="/quote/stripe-series-blue" className="product-grid__quick-quote btn btn-primary">TÍNH GIÁ NHANH <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></Link>;
+  return <Link to="/quote/stripe-series-blue" className="product-grid__quick-quote btn btn-primary">ĐẶT HÀNG <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></Link>;
 }

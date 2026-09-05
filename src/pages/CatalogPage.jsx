@@ -21,6 +21,8 @@ const AVAILABILITY_FILTERS = [
   ['pre-order', 'Pre-Order'],
 ];
 
+const MOBILE_COLOR_PAGE_SIZE = 5;
+
 export default function CatalogPage() {
   const [activeColorId, setActiveColorId] = useState('all');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
@@ -28,6 +30,7 @@ export default function CatalogPage() {
   const [colorOpen, setColorOpen] = useState(false);
   const [viewMode, setViewMode] = useState('standard');
   const [showStickyColors, setShowStickyColors] = useState(false);
+  const [stickyColorPage, setStickyColorPage] = useState(0);
   const gridRef = useRef(null);
 
   const activeColor = useMemo(() => COLOR_FILTERS.find((color) => color.id === activeColorId), [activeColorId]);
@@ -35,6 +38,15 @@ export default function CatalogPage() {
     () => availabilityFilter === 'all' ? products : products.filter((product) => product.availability === availabilityFilter),
     [availabilityFilter]
   );
+  const stickyColors = useMemo(() => COLOR_FILTERS.filter((color) => color.id !== 'all'), []);
+  const stickyPageCount = Math.max(1, stickyColors.length - MOBILE_COLOR_PAGE_SIZE + 1);
+  const stickyPageColors = stickyColors.slice(stickyColorPage, stickyColorPage + MOBILE_COLOR_PAGE_SIZE);
+
+  const selectColor = (color) => {
+    setActiveColorId(color.id);
+    const colorIndex = stickyColors.findIndex((item) => item.id === color.id);
+    if (colorIndex >= 0) setStickyColorPage(Math.min(Math.max(0, colorIndex - MOBILE_COLOR_PAGE_SIZE + 1), stickyPageCount - 1));
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -78,7 +90,7 @@ export default function CatalogPage() {
                   COLOR <span className="catalog-listing__rainbow-dot" />
                 </button>
                 <div className="catalog-listing__colors" aria-label="Lọc màu sản phẩm">
-                  {COLOR_FILTERS.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => setActiveColorId(color.id)} aria-label={color.label} aria-pressed={activeColorId === color.id} title={color.label}><span style={{ background: color.hex }} /></button>)}
+                  {COLOR_FILTERS.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => selectColor(color)} aria-label={color.label} aria-pressed={activeColorId === color.id} title={color.label}><span style={{ background: color.hex }} /></button>)}
                 </div>
               </div>
             </div>
@@ -96,7 +108,14 @@ export default function CatalogPage() {
       {showStickyColors && (
         <div className="catalog-listing__sticky-colors liquid-color-nav" aria-label="Đổi nhanh màu sản phẩm">
           <span className="catalog-listing__sticky-label">Màu:</span>
-          {COLOR_FILTERS.filter((color) => color.id !== 'all').slice(0, 6).map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => setActiveColorId(color.id)} aria-label={color.label} aria-pressed={activeColorId === color.id}><span style={{ background: color.hex }} /></button>)}
+          <span className="catalog-listing__sticky-desktop-colors">
+            {stickyColors.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => selectColor(color)} aria-label={color.label} aria-pressed={activeColorId === color.id}><span style={{ background: color.hex }} /></button>)}
+          </span>
+          <span className="catalog-listing__sticky-mobile-colors">
+            {stickyPageColors.map((color) => <button key={color.id} className={activeColorId === color.id ? 'is-active' : ''} onClick={() => selectColor(color)} aria-label={color.label} aria-pressed={activeColorId === color.id}><span style={{ background: color.hex }} /></button>)}
+            {Array.from({ length: MOBILE_COLOR_PAGE_SIZE - stickyPageColors.length }, (_, index) => <span className="catalog-listing__sticky-placeholder" key={`placeholder-${index}`} />)}
+          </span>
+          {stickyPageCount > 1 && <button className={`catalog-listing__sticky-next ${stickyColorPage === stickyPageCount - 1 ? 'is-back' : ''}`} onClick={() => setStickyColorPage((page) => (page + 1) % stickyPageCount)} aria-label="Xem thêm màu"><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>}
         </div>
       )}
       <Footer />

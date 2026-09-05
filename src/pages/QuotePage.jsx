@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import {
@@ -15,6 +15,34 @@ import {
 import './QuotePage.css';
 
 const getInitialParams = () => new URLSearchParams(window.location.search);
+
+const getOutfitDescription = (product, color) => {
+  const [shirt = 'tiêu chuẩn', shorts = 'đen'] = (color?.name || '').split('/');
+  const shirtStyle = product.name.includes('STRIPE') ? 'sọc' : 'phối';
+  return `Áo ${shirtStyle} ${shirt.toLowerCase()}, quần ${shorts.toLowerCase()}`;
+};
+
+const formatCompactPrice = (price) => price >= 1000 && price % 1000 === 0
+  ? `${new Intl.NumberFormat('vi-VN').format(price / 1000)}k`
+  : formatPrice(price);
+
+const PRINTING_INFO = [
+  {
+    title: 'In ấn thăng hoa',
+    text: 'Hình in thấm trực tiếp vào sợi vải, nhẹ, bền màu và không bong tróc. Phù hợp cho bộ áo đội cần tối ưu chi phí.',
+    image: '/images/products/stripe-blue/details/print-layout-01.jpg',
+  },
+  {
+    title: 'In ép nhiệt PET (DTF)/Decal',
+    text: 'Bề mặt in mịn, sắc nét và có độ hoàn thiện chuyên nghiệp. Phù hợp cho tên số, logo và các chi tiết nhận diện thi đấu.',
+    image: '/images/products/stripe-blue/details/print-layout-02.jpg',
+  },
+  {
+    title: 'Logo đội hiệu ứng 3D',
+    text: 'Logo được làm nổi với độ dày tiêu chuẩn 1mm, tạo chiều sâu và tăng cảm giác cao cấp cho áo đấu.',
+    image: '/images/products/stripe-blue/details/chest-logo.jpg',
+  },
+];
 
 const copyText = async (text) => {
   if (navigator.clipboard?.writeText) {
@@ -34,7 +62,6 @@ const copyText = async (text) => {
 
 export default function QuotePage() {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const product = products.find((item) => item.slug === slug);
 
   const [selectedColor, setSelectedColor] = useState(() => Number(getInitialParams().get('color')) || 0);
@@ -54,6 +81,10 @@ export default function QuotePage() {
   });
   const [notice, setNotice] = useState('');
   const [priceAnimating, setPriceAnimating] = useState(false);
+  const [selectedTierQty, setSelectedTierQty] = useState(null);
+  const [freeShippingSelected, setFreeShippingSelected] = useState(() => getInitialParams().get('ship') !== '0');
+  const [giftSelected, setGiftSelected] = useState(() => getInitialParams().get('gift') !== '0');
+  const [isPrintingInfoOpen, setPrintingInfoOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -71,6 +102,20 @@ export default function QuotePage() {
     return () => window.clearTimeout(timer);
   }, [notice]);
 
+  useEffect(() => {
+    if (!isPrintingInfoOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setPrintingInfoOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isPrintingInfoOpen]);
+
   const pricing = useMemo(() => {
     if (!product) return {};
     const baseUnitPrice = getUnitPrice(product.price, quantity);
@@ -80,19 +125,19 @@ export default function QuotePage() {
       0
     );
     const pricePerUnit = baseUnitPrice + printPrice + upgradesPrice;
+    const merchandiseTotal = pricePerUnit * quantity;
+    const shippingPrice = quantity >= 5 && freeShippingSelected ? 0 : 30000;
     return {
       baseUnitPrice,
       printPrice,
       upgradesPrice,
       pricePerUnit,
-      totalPrice: pricePerUnit * quantity,
+      merchandiseTotal,
+      shippingPrice,
+      savings: Math.max(0, (product.price - baseUnitPrice) * quantity),
+      totalPrice: merchandiseTotal + shippingPrice,
     };
-  }, [product, quantity, selectedPrintOption, selectedUpgradeOptions]);
-
-  const activeTier = useMemo(() => {
-    const tiers = [...PRICE_TIERS].sort((a, b) => b.minQty - a.minQty);
-    return tiers.find((tier) => quantity >= tier.minQty);
-  }, [quantity]);
+  }, [product, quantity, selectedPrintOption, selectedUpgradeOptions, freeShippingSelected]);
 
   if (!product) {
     return (
@@ -120,14 +165,10 @@ export default function QuotePage() {
     params.set('color', String(overrides.color ?? safeColorIndex));
     const upgrades = overrides.upgrades ?? selectedUpgradeOptions;
     if (upgrades.length) params.set('upgrades', upgrades.join(','));
+    if (!freeShippingSelected) params.set('ship', '0');
+    if (!giftSelected) params.set('gift', '0');
     const nextSlug = overrides.slug || product.slug;
     return `${window.location.origin}/quote/${nextSlug}?${params.toString()}`;
-  };
-
-  const changeProduct = (nextSlug) => {
-    if (nextSlug === product.slug) return;
-    setSelectedColor(0);
-    navigate(buildShareUrl({ slug: nextSlug, color: 0 }).replace(window.location.origin, ''));
   };
 
   const toggleUpgrade = (id) => {
@@ -144,6 +185,8 @@ export default function QuotePage() {
       print: selectedPrintOption,
       upgrades: selectedUpgradeOptions,
       color: safeColorIndex,
+      freeShipping: freeShippingSelected,
+      gift: giftSelected,
       url: quoteUrl,
       savedAt: new Date().toISOString(),
     };
@@ -181,10 +224,10 @@ export default function QuotePage() {
     window.open(`${ZALO_LINK}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
-  const Summary = () => (
+  const Summary = ({ title = 'BÁO GIÁ THAM KHẢO', compact = false }) => (
     <>
-      <div className="quote-summary__eyebrow">BÁO GIÁ THAM KHẢO</div>
-      <div className="quote-summary__product">
+      <div className="quote-summary__eyebrow">{title}</div>
+      <div className={`quote-summary__product ${compact ? 'quote-summary__product--compact' : ''}`}>
         <img src={currentImage} alt="" />
         <div>
           <strong>{product.name}</strong>
@@ -193,27 +236,39 @@ export default function QuotePage() {
       </div>
 
       <div className="quote-summary__lines">
-        <div><span>Áo · {quantity} bộ</span><strong>{formatPrice(pricing.baseUnitPrice)}/bộ</strong></div>
-        <div><span>{selectedPrint?.name}</span><strong>{pricing.printPrice ? `+${formatPrice(pricing.printPrice)}` : '0đ'}</strong></div>
+        <div className="quote-summary__base-line">
+          <span>{product.name} · Đơn giá</span>
+          <span className="quote-summary__line-value"><strong>{formatPrice(pricing.baseUnitPrice)}/bộ</strong>{pricing.savings > 0 && <small>Đã giảm {formatCompactPrice(product.price - pricing.baseUnitPrice)}/bộ</small>}</span>
+        </div>
+        <div className="quote-summary__print-line"><span>{selectedPrint?.summaryName || selectedPrint?.name}</span><strong>+{formatPrice(pricing.printPrice)}/bộ</strong></div>
         {selectedUpgrades.map((option) => (
-          <div key={option.id}><span>{option.name}</span><strong>+{formatPrice(option.price)}</strong></div>
+          <div key={option.id}><span>{option.summaryName || option.name}</span><strong>+{formatPrice(option.price)}{option.unit}</strong></div>
         ))}
-        <div className="quote-summary__unit-total"><span>Chi phí cả bộ</span><strong>{formatPrice(pricing.pricePerUnit)}/bộ</strong></div>
+        <div className="quote-summary__unit-total"><span>Chi phí cả bộ hoàn thiện</span><strong>{formatPrice(pricing.pricePerUnit)}/bộ</strong></div>
+        <div className="quote-summary__shipping">
+          <span><span className="material-symbols-outlined" aria-hidden="true">delivery_truck_speed</span>Phí vận chuyển</span>
+          <strong>{pricing.shippingPrice === 0 ? 'Miễn phí' : formatPrice(pricing.shippingPrice)}</strong>
+        </div>
+        {quantity >= 10 && giftSelected && (
+          <div className="quote-summary__gift">
+            <img src="/images/products/captain-armband.svg" alt="" />
+            <span><b><span className="material-symbols-outlined" aria-hidden="true">featured_seasonal_and_gifts</span>QUÀ TẶNG</b><em>01 Băng đội trưởng Driball</em></span>
+          </div>
+        )}
       </div>
 
       <div className="quote-summary__total">
-        <span>Tạm tính tổng đơn</span>
+        <span>Tổng đơn tạm tính</span>
         <strong className={priceAnimating ? 'is-updating' : ''}>{formatPrice(pricing.totalPrice)}</strong>
-        <small>{formatPrice(pricing.pricePerUnit)} / bộ</small>
+        <small>{pricing.savings > 0 ? `Đã giảm ${formatPrice(pricing.savings)} trên tổng đơn` : 'Giá tiêu chuẩn'}</small>
       </div>
 
       <button className="quote-action quote-action--zalo" onClick={sendToZalo}>
-        Gửi Driball qua Zalo <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span>
+        Đặt hàng qua Zalo
       </button>
       <button className="quote-action quote-action--save" onClick={saveQuote}>
-        Lưu & sao chép link cho team
+        Sao chép liên kết gửi cho đội bóng
       </button>
-      <p className="quote-summary__note">Giá cuối cùng được xác nhận sau khi duyệt thiết kế và số lượng thực tế.</p>
     </>
   );
 
@@ -224,102 +279,158 @@ export default function QuotePage() {
         <div className="quote-workspace">
           <div className="quote-builder">
             <section className="quote-block quote-block--products">
+              <div className="quote-config-heading quote-config-heading--order">
+                <h2>Đặt hàng</h2>
+              </div>
               <div className="quote-product-picker">
                 <article className="quote-product-current">
                   <div className="quote-product-current__visual"><img src={currentImage} alt={product.name} /></div>
                   <div className="quote-product-current__copy">
-                    <span>MẪU ĐANG CHỌN</span>
                     <h3>{product.name}</h3>
+                    <p className="quote-product-current__outfit">{getOutfitDescription(product, currentColor)}</p>
                     <div className="quote-product-current__colors" aria-label="Chọn màu sản phẩm">
                       {product.colors.map((color, index) => (
                         <button key={`${color.name}-${index}`} className={safeColorIndex === index ? 'is-active' : ''} onClick={() => setSelectedColor(index)} aria-label={color.name} aria-pressed={safeColorIndex === index} title={color.name}><span style={{ background: color.hex }} /></button>
                       ))}
                     </div>
-                    <p>{product.tagline}</p>
-                    <label>
-                      <span>Đổi sang mẫu khác</span>
-                      <select value={product.slug} onChange={(event) => changeProduct(event.target.value)}>
-                        {products.map((item) => <option value={item.slug} key={item.id}>{item.name}</option>)}
-                      </select>
-                    </label>
+                    <strong className="quote-product-current__price">{formatPrice(product.price)} / bộ</strong>
                   </div>
                 </article>
               </div>
 
+              <div className="quote-config-heading">
+                <h2>Chọn số lượng</h2>
+                <p>Nhiều ưu đãi lớn khi đặt theo đội.</p>
+              </div>
               <section className="quote-config-card quote-block--quantity" aria-label="Số lượng">
               <div className="quote-quantity-control">
-                <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity === 1} aria-label="Giảm số lượng">−</button>
+                <button onClick={() => { setSelectedTierQty(null); setQuantity((value) => Math.max(1, value - 1)); }} disabled={quantity === 1} aria-label="Giảm số lượng">−</button>
                 <label>
                   <input
                     type="number"
                     min="1"
                     max="999"
                     value={quantity}
-                    onChange={(event) => setQuantity(Math.max(1, Math.min(999, Number(event.target.value) || 1)))}
+                    onChange={(event) => { setSelectedTierQty(null); setQuantity(Math.max(1, Math.min(999, Number(event.target.value) || 1))); }}
                     aria-label="Số lượng bộ"
                   />
                   <span>BỘ</span>
                 </label>
-                <button onClick={() => setQuantity((value) => Math.min(999, value + 1))} aria-label="Tăng số lượng">+</button>
+                <button onClick={() => { setSelectedTierQty(null); setQuantity((value) => Math.min(999, value + 1)); }} aria-label="Tăng số lượng">+</button>
               </div>
 
               <div className="quote-tiers">
                 {PRICE_TIERS.map((tier) => (
                   <button
                     key={tier.minQty}
-                    className={activeTier?.minQty === tier.minQty ? 'is-active' : ''}
-                    onClick={() => setQuantity(tier.minQty)}
+                    className={selectedTierQty === tier.minQty ? 'is-active' : ''}
+                    onClick={() => { setSelectedTierQty(tier.minQty); setQuantity(tier.minQty); }}
                   >
                     <span>{tier.label}</span>
-                    <strong>{formatPrice(product.price - tier.discount)}</strong>
+                    <strong>{formatPrice(product.price - tier.discount)}/bộ</strong>
                   </button>
                 ))}
               </div>
+              <div className="quote-quantity-benefits" aria-live="polite">
+                {quantity >= 5 ? (
+                  <button className={freeShippingSelected ? 'is-active' : ''} onClick={() => setFreeShippingSelected((value) => !value)} aria-pressed={freeShippingSelected}>
+                    <span className="quote-benefit__icon material-symbols-outlined" aria-hidden="true">delivery_truck_speed</span>
+                    <span><strong>Miễn phí vận chuyển</strong></span>
+                    <i className="quote-benefit__check" aria-hidden="true">{freeShippingSelected && <span className="material-symbols-outlined">check</span>}</i>
+                  </button>
+                ) : (
+                  <div className="quote-benefit quote-benefit--disabled">
+                    <span className="quote-benefit__icon material-symbols-outlined" aria-hidden="true">delivery_truck_speed</span>
+                    <span><strong>Phí vận chuyển 30.000đ</strong></span>
+                  </div>
+                )}
+                {quantity >= 10 && (
+                  <button className={`quote-benefit--gift ${giftSelected ? 'is-active' : ''}`} onClick={() => setGiftSelected((value) => !value)} aria-pressed={giftSelected}>
+                    <img src="/images/products/captain-armband.svg" alt="" />
+                    <span><b><span className="material-symbols-outlined" aria-hidden="true">featured_seasonal_and_gifts</span>QUÀ TẶNG</b><strong>01 Băng đội trưởng Driball</strong></span>
+                    <i className="quote-benefit__check" aria-hidden="true">{giftSelected && <span className="material-symbols-outlined">check</span>}</i>
+                  </button>
+                )}
+              </div>
               </section>
 
+              <div className="quote-config-heading">
+                <h2>Chọn gói in ấn</h2>
+              </div>
               <section className="quote-config-card quote-block--print" aria-label="In ấn">
-              <div className="quote-option-grid">
-                {PRINT_OPTIONS.map((option, index) => (
+              <div className="quote-option-list">
+                {PRINT_OPTIONS.map((option) => (
                   <button
                     key={option.id}
                     className={selectedPrintOption === option.id ? 'is-active' : ''}
                     onClick={() => setSelectedPrintOption(option.id)}
                     aria-pressed={selectedPrintOption === option.id}
                   >
-                    <span>0{index + 1}</span>
-                    <h3>{option.name}</h3>
-                    <p>{option.description}</p>
-                    <strong>{option.price ? `+${formatPrice(option.price)} / bộ` : 'Không cộng thêm'}</strong>
-                    <i>{selectedPrintOption === option.id ? 'Đã chọn' : 'Chọn'}</i>
+                    <div className="quote-option-list__copy">
+                      <div className="quote-option-list__heading">
+                        <h3>{option.name}</h3>
+                        {option.id !== 'none' && <strong>{option.price ? `+ ${formatPrice(option.price)}/bộ` : 'Miễn phí'}</strong>}
+                      </div>
+                      <p>{option.description}</p>
+                    </div>
+                    <i className="quote-option-list__status" aria-hidden="true">
+                      {selectedPrintOption === option.id && <span className="material-symbols-outlined">check</span>}
+                    </i>
                   </button>
                 ))}
               </div>
-              <div className="quote-upgrades quote-upgrades--inside-print">
+              </section>
+
+              <div className="quote-config-heading">
+                <h2 className="quote-upgrade-heading">Nâng cấp in ấn</h2>
+              </div>
+              <section className="quote-config-card quote-block--upgrade-options" aria-label="Nâng cấp">
+              <div className="quote-option-list quote-option-list--upgrades">
                 {UPGRADE_OPTIONS.map((option) => {
                   const selected = selectedUpgradeOptions.includes(option.id);
                   return (
-                    <button key={option.id} onClick={() => toggleUpgrade(option.id)} className={selected ? 'is-active' : ''} aria-pressed={selected}>
-                      <span className="quote-upgrades__check">{selected ? '✓' : '+'}</span>
-                      <div><h3>{option.name}</h3><p>{option.description}</p></div>
-                      <strong>+{formatPrice(option.price)}{option.unit}</strong>
+                    <button key={option.id} onClick={() => toggleUpgrade(option.id)} className={`quote-option-list__upgrade ${selected ? 'is-active' : ''}`} aria-pressed={selected}>
+                      <div className="quote-option-list__copy">
+                        <div className="quote-option-list__heading"><h3>{option.name}</h3><strong>+ {formatPrice(option.price)}{option.unit}</strong></div>
+                        <p>{option.description}</p>
+                      </div>
+                      <i className="quote-option-list__status" aria-hidden="true">
+                        {selected && <span className="material-symbols-outlined">check</span>}
+                      </i>
                     </button>
                   );
                 })}
               </div>
               </section>
+              <button className="quote-printing-learn" onClick={() => setPrintingInfoOpen(true)}>
+                <span><small>TÌM HIỂU THÊM</small><strong>Cách thức và chất liệu in ấn</strong></span>
+                <i aria-hidden="true">+</i>
+              </button>
             </section>
           </div>
 
           <aside className="quote-summary"><Summary /></aside>
         </div>
 
-        <div className="quote-mobile-bar">
-          <div className="quote-mobile-bar__price">
-            <span>{quantity} bộ · {selectedPrint?.name}</span>
-            <strong>{formatPrice(pricing.totalPrice)}</strong>
-            <small>Áo {formatPrice(pricing.baseUnitPrice)} + in {pricing.printPrice ? formatPrice(pricing.printPrice) : '0đ'} · <b>{formatPrice(pricing.pricePerUnit)}/bộ sau in</b></small>
-          </div>
-          <button onClick={sendToZalo}>Gửi Zalo <span className="material-symbols-outlined icon-call-made" aria-hidden="true">call_made</span></button>
+        <section className="quote-mobile-summary">
+          <Summary title={`CHI TIẾT ĐƠN HÀNG · ${quantity} BỘ`} compact />
+        </section>
+
+        <div className={`modal-overlay quote-printing-info-overlay ${isPrintingInfoOpen ? 'active' : ''}`} onClick={() => setPrintingInfoOpen(false)}>
+          {isPrintingInfoOpen && (
+            <div className="modal-content quote-printing-info" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label="Cách thức và chất liệu in ấn">
+              <button className="quote-printing-info__close" onClick={() => setPrintingInfoOpen(false)} aria-label="Đóng">×</button>
+              <header><span>DRIBALL PRINTING</span><h2>Cách thức và chất liệu in ấn</h2></header>
+              <div className="quote-printing-info__list">
+                {PRINTING_INFO.map((item) => (
+                  <article key={item.title}>
+                    <img src={item.image} alt="" />
+                    <div><h3>{item.title}</h3><p>{item.text}</p></div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {notice && <div className="quote-notice" role="status">{notice}</div>}

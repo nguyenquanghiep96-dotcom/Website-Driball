@@ -41,7 +41,7 @@ export default function Navbar() {
           to="/quote/stripe-series-blue"
           className="btn btn-primary navbar__cta"
         >
-          TÍNH GIÁ NHANH
+          ĐẶT HÀNG
         </Link>
 
         {/* Mobile hamburger */}
@@ -68,7 +68,7 @@ export default function Navbar() {
               className="btn btn-primary navbar__drawer-cta"
               onClick={() => setMenuOpen(false)}
             >
-              TÍNH GIÁ NHANH
+              ĐẶT HÀNG
             </Link>
           </li>
         </ul>

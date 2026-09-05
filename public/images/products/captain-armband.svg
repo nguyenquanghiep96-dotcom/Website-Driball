@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Băng đội trưởng Driball">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3f3ef"/>
+      <stop offset="1" stop-color="#dfe3ff"/>
+    </linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0524ff"/>
+      <stop offset="1" stop-color="#2746ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="14" fill="url(#bg)"/>
+  <path d="M17 27c13-7 33-7 46 0v27c-13 7-33 7-46 0z" fill="url(#band)"/>
+  <path d="M17 31c13-7 33-7 46 0M17 50c13 7 33 7 46 0" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>
+  <text x="40" y="48" fill="#fff" font-family="Arial, sans-serif" font-size="25" font-weight="800" text-anchor="middle">C</text>
+</svg>

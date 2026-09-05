@@ -4,17 +4,13 @@
 .partners__head h2 { font-family: var(--font-display); font-size: clamp(58px, 8.7vw, 130px); font-weight: 400; line-height: .98; letter-spacing: -.02em; }
 .partners__head h2 em { color: var(--color-blue); font-style: normal; }
 .partners__intro { max-width: 390px; padding-bottom: 12px; color: rgba(255,255,255,.62); font-size: 18px; font-weight: 550; }
-.partners__marquee { margin-top: 72px; display: grid; gap: 14px; overflow-x: auto; overflow-y: hidden; cursor: grab; user-select: none; scrollbar-width: none; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+.partners__marquee { margin-top: 72px; display: grid; gap: 14px; overflow: hidden; cursor: grab; user-select: none; touch-action: pan-y; }
 .partners__marquee::-webkit-scrollbar { display: none; }
 .partners__marquee.is-dragging { cursor: grabbing; }
-.partners__marquee.is-dragging .partners__track { animation-play-state: paused; }
-.partners__track { width: max-content; display: flex; gap: 14px; padding: 4px 0; animation: partners-loop 52s linear infinite; }
-.partners__track--reverse { animation-direction: reverse; animation-duration: 60s; }
-.partners__track:hover { animation-play-state: paused; }
+.partners__track { width: max-content; display: flex; gap: 14px; padding: 4px 0; will-change: transform; }
 .partners__item { width: 200px; aspect-ratio: 1; padding: 20px; display: grid; place-items: center; border-radius: 30px; background: rgb(255 255 255 / 0%); color: #fff; cursor: pointer; transition: transform .3s var(--ease-out); }
 .partners__item:hover { transform: translateY(-8px) rotate(-2deg); }
 .partners__item img { width: 100%; height: 100%; object-fit: contain; }
-@keyframes partners-loop { to { transform: translateX(calc(-50% - 7px)); } }
 .partners__modal { position: relative; width: min(820px, calc(100vw - 32px)); overflow: hidden; border-radius: 30px; background: #1d1f2b; }
 .partners__modal-close { position: absolute; top: 16px; right: 16px; z-index: 2; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: rgba(29,31,43,.8); color: #fff; font-size: 28px; line-height: 1; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 .partners__modal-image { display: block; width: 100%; max-height: min(78svh, 760px); object-fit: cover; object-position: center; }
@@ -28,4 +24,4 @@
   .partners__modal { border-radius: 22px; }
 }
 
-@media (prefers-reduced-motion: reduce) { .partners__track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .partners__track { transform: none !important; } }
